@@ -1,0 +1,34 @@
+name: Morning brief
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # 06:00 UTC every day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Send morning brief
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Empty when the secret is not set -> falls back to deadlines.example.json
+          DEADLINES_JSON: ${{ secrets.DEADLINES_JSON }}
+          LATITUDE: ${{ secrets.LATITUDE || vars.LATITUDE }}
+          LONGITUDE: ${{ secrets.LONGITUDE || vars.LONGITUDE }}
+          CITY_NAME: ${{ secrets.CITY_NAME || vars.CITY_NAME }}
+          TIMEZONE: ${{ secrets.TIMEZONE || vars.TIMEZONE }}
+        run: python main.py

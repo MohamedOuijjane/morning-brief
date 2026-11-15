@@ -1,0 +1,41 @@
+"""Settings loaded from environment variables."""
+
+import os
+from pathlib import Path
+
+
+def _load_dotenv(path: Path = Path(__file__).parent / ".env") -> None:
+    """Minimal .env loader for local runs. Existing env vars take priority."""
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
+
+def _get(name: str, default: str = "") -> str:
+    value = os.environ.get(name, "").strip()
+    return value or default
+
+
+TELEGRAM_TOKEN = _get("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = _get("TELEGRAM_CHAT_ID")
+
+LATITUDE = float(_get("LATITUDE", "48.8566"))
+LONGITUDE = float(_get("LONGITUDE", "2.3522"))
+CITY_NAME = _get("CITY_NAME", "Paris")
+TIMEZONE = _get("TIMEZONE", "Europe/Paris")
+
+DEADLINES_DAYS = int(_get("DEADLINES_DAYS", "14"))
+# Raw JSON content takes priority over the file path (used by the workflow).
+DEADLINES_JSON = _get("DEADLINES_JSON")
+DEADLINES_FILE = _get("DEADLINES_FILE", "deadlines.json")
+DEADLINES_FALLBACK_FILE = "deadlines.example.json"
+
+DRY_RUN = _get("DRY_RUN", "false").lower() in ("1", "true", "yes")
