@@ -7,22 +7,26 @@ Telegram message with:
 2. **Upcoming deadlines** due in the next 14 days, read from a JSON file
 
 Each source is fetched on its own, so if the weather API is down you still
-get your deadlines (and the other way around).
+get your deadlines (and the other way around). Weather requests are retried
+up to 3 times with a short backoff on timeouts, rate limits and server errors.
+
+The message is written in French. Dates are formatted with built-in day and
+month names, so no `fr_FR` system locale is needed.
 
 ```
-🌅 Good morning! Sunday 15 November 2026
+🌅 Bonjour ! lundi 16 novembre 2026
 
-⛅ Weather in Paris
-Partly cloudy
-Now: 9.1°C
-Min / Max: 6.2°C / 11.4°C
-Rain chance: 20%
-Wind: up to 14.0 km/h
+🌧 Météo à Paris
+Pluie faible
+Actuellement : 10,8 °C
+Min / Max : 10,4 °C / 13,8 °C
+Risque de pluie : 100 %
+Vent : jusqu'à 18,0 km/h
 
-📅 Deadlines (next 14 days)
-🔴 Submit sample project report: Tue 17 Nov (in 2 days)
-🟡 Pay example utility bill: Fri 20 Nov (in 5 days)
-🟢 Renew placeholder library card: Thu 26 Nov (in 11 days)
+📅 Échéances (14 prochains jours)
+🔴 Submit sample project report : mar. 17 nov. (demain)
+🟡 Pay example utility bill : ven. 20 nov. (dans 4 jours)
+🟢 Renew placeholder library card : jeu. 26 nov. (dans 10 jours)
 ```
 
 ## Project layout
