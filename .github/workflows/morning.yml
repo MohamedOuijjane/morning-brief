@@ -31,4 +31,6 @@ jobs:
           LONGITUDE: ${{ secrets.LONGITUDE || vars.LONGITUDE }}
           CITY_NAME: ${{ secrets.CITY_NAME || vars.CITY_NAME }}
           TIMEZONE: ${{ secrets.TIMEZONE || vars.TIMEZONE }}
+          ENABLE_QURAN: ${{ secrets.ENABLE_QURAN || vars.ENABLE_QURAN }}
+          ENABLE_WORD: ${{ secrets.ENABLE_WORD || vars.ENABLE_WORD }}
         run: python main.py

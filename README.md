@@ -3,18 +3,28 @@
 A small Python script that runs every morning on GitHub Actions and sends one
 Telegram message with:
 
-1. **Today's weather** from [Open-Meteo](https://open-meteo.com/) (free, no API key)
-2. **Upcoming deadlines** due in the next 14 days, read from a JSON file
+1. **Verse of the day**: one ayah in Arabic with its Tafsir Al-Muyassar, from
+   [alquran.cloud](https://alquran.cloud/api) (free, no API key)
+2. **Today's weather** from [Open-Meteo](https://open-meteo.com/) (free, no API key)
+3. **Upcoming deadlines** due in the next 14 days, read from a JSON file
+4. **Word of the day** in Arabic, French and English, with an example sentence
 
 Each source is fetched on its own, so if the weather API is down you still
-get your deadlines (and the other way around). Weather requests are retried
-up to 3 times with a short backoff on timeouts, rate limits and server errors.
+get the rest of the message. API requests are retried up to 3 times with a
+short backoff on timeouts, rate limits and server errors. If the brief is longer
+than Telegram's 4096-character limit, it is split into several messages at
+section boundaries.
 
 The message is written in French. Dates are formatted with built-in day and
 month names, so no `fr_FR` system locale is needed.
 
 ```
 🌅 Bonjour ! lundi 16 novembre 2026
+
+📖 آية اليوم
+﴿ ثُمَّ إِنَّكُمْ يَوْمَ ٱلْقِيَٰمَةِ عِندَ رَبِّكُمْ تَخْتَصِمُونَ ﴾
+سُورَةُ الزُّمَرِ — الآية 31
+التفسير: إنك -أيها الرسول- ميت وإنهم ميتون، ثم إنكم جميعًا- أيها الناس- يوم القيامة عند ربكم تتنازعون، فيحكم بينكم بالعدل والإنصاف.
 
 🌧 Météo à Paris
 Pluie faible
@@ -27,13 +37,19 @@ Vent : jusqu'à 18,0 km/h
 🔴 Submit sample project report : mar. 17 nov. (demain)
 🟡 Pay example utility bill : ven. 20 nov. (dans 4 jours)
 🟢 Renew placeholder library card : jeu. 26 nov. (dans 10 jours)
+
+💬 Mot du jour
+🇸🇦 أسبوع — الامتحان في الأسبوع القادم.
+🇫🇷 semaine — L'examen est la semaine prochaine.
+🇬🇧 week — The exam is next week.
 ```
 
 ## Project layout
 
 | File | Purpose |
 | --- | --- |
-| `main.py` | `get_weather()`, `get_deadlines()`, `send()` |
+| `main.py` | `get_verse()`, `get_weather()`, `get_deadlines()`, `get_word()`, `send()` |
+| `words.json` | 150 words in Arabic, French and English with example sentences |
 | `config.py` | Reads all settings from environment variables |
 | `deadlines.example.json` | Sample deadlines (fake data) |
 | `.env.example` | Variable names for local runs |
@@ -108,6 +124,19 @@ shown (change with `DEADLINES_DAYS`).
 To keep your real deadlines private, put them in `deadlines.json` locally
 (ignored by git) and paste the same content into the `DEADLINES_JSON` secret.
 
+## Verse and word of the day
+
+- **Verse**: picked from the date, so reruns on the same day show the same
+  ayah, and over time it cycles through all 6236 ayahs. Ayahs longer than 400
+  characters are skipped in favour of the next one. The verse and the tafsir
+  are shown exactly as returned by the API.
+- **Word**: picked by day of the year from `words.json`. Add or edit entries
+  freely; each needs `ar`, `fr`, `en`, `ar_example`, `fr_example` and
+  `en_example`.
+
+Both sections can be turned off with `ENABLE_QURAN=false` or `ENABLE_WORD=false`
+(as a secret or variable in GitHub, or in `.env` locally).
+
 ## Running locally
 
 ```bash
@@ -134,6 +163,9 @@ python main.py             # send it to Telegram
 | `DEADLINES_JSON` | – | Deadlines as raw JSON (takes priority) |
 | `DEADLINES_FILE` | `deadlines.json` | Deadlines file, falls back to the example |
 | `DEADLINES_DAYS` | `14` | Look-ahead window |
+| `ENABLE_QURAN` | `true` | Show the verse of the day |
+| `ENABLE_WORD` | `true` | Show the word of the day |
+| `WORDS_FILE` | `words.json` | Word list |
 | `DRY_RUN` | `false` | Print instead of sending |
 
 ## License

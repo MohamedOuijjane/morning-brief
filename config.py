@@ -38,4 +38,13 @@ DEADLINES_JSON = _get("DEADLINES_JSON")
 DEADLINES_FILE = _get("DEADLINES_FILE", "deadlines.json")
 DEADLINES_FALLBACK_FILE = "deadlines.example.json"
 
-DRY_RUN = _get("DRY_RUN", "false").lower() in ("1", "true", "yes")
+def _flag(name: str, default: str) -> bool:
+    return _get(name, default).lower() in ("1", "true", "yes", "on")
+
+
+DRY_RUN = _flag("DRY_RUN", "false")
+
+# Optional sections
+ENABLE_QURAN = _flag("ENABLE_QURAN", "true")
+ENABLE_WORD = _flag("ENABLE_WORD", "true")
+WORDS_FILE = _get("WORDS_FILE", "words.json")

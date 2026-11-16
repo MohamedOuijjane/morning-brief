@@ -1,0 +1,1202 @@
+[
+  {
+    "ar": "كتاب",
+    "fr": "livre",
+    "en": "book",
+    "ar_example": "أقرأ كتابًا جيدًا.",
+    "fr_example": "Je lis un bon livre.",
+    "en_example": "I am reading a good book."
+  },
+  {
+    "ar": "معرفة",
+    "fr": "savoir",
+    "en": "knowledge",
+    "ar_example": "المعرفة تفتح أبوابًا كثيرة.",
+    "fr_example": "Le savoir ouvre beaucoup de portes.",
+    "en_example": "Knowledge opens many doors."
+  },
+  {
+    "ar": "صديق",
+    "fr": "ami",
+    "en": "friend",
+    "ar_example": "صديقي يسكن قرب المدرسة.",
+    "fr_example": "Mon ami habite près de l'école.",
+    "en_example": "My friend lives near the school."
+  },
+  {
+    "ar": "صباح",
+    "fr": "matin",
+    "en": "morning",
+    "ar_example": "أشرب الشاي كل صباح.",
+    "fr_example": "Je bois du thé chaque matin.",
+    "en_example": "I drink tea every morning."
+  },
+  {
+    "ar": "ماء",
+    "fr": "eau",
+    "en": "water",
+    "ar_example": "اشرب الماء خلال اليوم.",
+    "fr_example": "Bois de l'eau pendant la journée.",
+    "en_example": "Drink water during the day."
+  },
+  {
+    "ar": "عمل",
+    "fr": "travail",
+    "en": "work",
+    "ar_example": "يبدأ عملي في الساعة التاسعة.",
+    "fr_example": "Mon travail commence à neuf heures.",
+    "en_example": "My work starts at nine."
+  },
+  {
+    "ar": "سؤال",
+    "fr": "question",
+    "en": "question",
+    "ar_example": "هل يمكنني أن أطرح سؤالًا؟",
+    "fr_example": "Puis-je poser une question ?",
+    "en_example": "May I ask a question?"
+  },
+  {
+    "ar": "جواب",
+    "fr": "réponse",
+    "en": "answer",
+    "ar_example": "الجواب في الصفحة العاشرة.",
+    "fr_example": "La réponse est à la page dix.",
+    "en_example": "The answer is on page ten."
+  },
+  {
+    "ar": "هدف",
+    "fr": "objectif",
+    "en": "goal",
+    "ar_example": "هدفي هو تعلّم الفرنسية.",
+    "fr_example": "Mon objectif est d'apprendre le français.",
+    "en_example": "My goal is to learn French."
+  },
+  {
+    "ar": "جهد",
+    "fr": "effort",
+    "en": "effort",
+    "ar_example": "النجاح يحتاج إلى جهد يومي.",
+    "fr_example": "Le succès demande un effort quotidien.",
+    "en_example": "Success needs daily effort."
+  },
+  {
+    "ar": "صبر",
+    "fr": "patience",
+    "en": "patience",
+    "ar_example": "الصبر صفة جميلة.",
+    "fr_example": "La patience est une belle qualité.",
+    "en_example": "Patience is a beautiful quality."
+  },
+  {
+    "ar": "صحة",
+    "fr": "santé",
+    "en": "health",
+    "ar_example": "الرياضة مفيدة للصحة.",
+    "fr_example": "Le sport est bon pour la santé.",
+    "en_example": "Sport is good for health."
+  },
+  {
+    "ar": "عائلة",
+    "fr": "famille",
+    "en": "family",
+    "ar_example": "أزور عائلتي يوم الجمعة.",
+    "fr_example": "Je rends visite à ma famille le vendredi.",
+    "en_example": "I visit my family on Fridays."
+  },
+  {
+    "ar": "مدينة",
+    "fr": "ville",
+    "en": "city",
+    "ar_example": "هذه المدينة قديمة جدًا.",
+    "fr_example": "Cette ville est très ancienne.",
+    "en_example": "This city is very old."
+  },
+  {
+    "ar": "طريق",
+    "fr": "route",
+    "en": "road",
+    "ar_example": "الطريق طويل.",
+    "fr_example": "La route est longue.",
+    "en_example": "The road is long."
+  },
+  {
+    "ar": "سوق",
+    "fr": "marché",
+    "en": "market",
+    "ar_example": "نشتري الخضر من السوق.",
+    "fr_example": "Nous achetons des légumes au marché.",
+    "en_example": "We buy vegetables at the market."
+  },
+  {
+    "ar": "ثمن",
+    "fr": "prix",
+    "en": "price",
+    "ar_example": "الثمن مرتفع جدًا.",
+    "fr_example": "Le prix est trop élevé.",
+    "en_example": "The price is too high."
+  },
+  {
+    "ar": "مال",
+    "fr": "argent",
+    "en": "money",
+    "ar_example": "ادّخر بعض المال كل شهر.",
+    "fr_example": "Économise un peu d'argent chaque mois.",
+    "en_example": "Save some money every month."
+  },
+  {
+    "ar": "ساعة",
+    "fr": "heure",
+    "en": "hour",
+    "ar_example": "يدوم الاجتماع ساعة واحدة.",
+    "fr_example": "La réunion dure une heure.",
+    "en_example": "The meeting lasts one hour."
+  },
+  {
+    "ar": "يوم",
+    "fr": "jour",
+    "en": "day",
+    "ar_example": "اليوم يوم جميل.",
+    "fr_example": "C'est un beau jour.",
+    "en_example": "It is a beautiful day."
+  },
+  {
+    "ar": "أسبوع",
+    "fr": "semaine",
+    "en": "week",
+    "ar_example": "الامتحان في الأسبوع القادم.",
+    "fr_example": "L'examen est la semaine prochaine.",
+    "en_example": "The exam is next week."
+  },
+  {
+    "ar": "شهر",
+    "fr": "mois",
+    "en": "month",
+    "ar_example": "أسافر الشهر القادم.",
+    "fr_example": "Je voyage le mois prochain.",
+    "en_example": "I am travelling next month."
+  },
+  {
+    "ar": "سنة",
+    "fr": "année",
+    "en": "year",
+    "ar_example": "مرّت هذه السنة بسرعة.",
+    "fr_example": "Cette année est passée vite.",
+    "en_example": "This year passed quickly."
+  },
+  {
+    "ar": "بيت",
+    "fr": "maison",
+    "en": "house",
+    "ar_example": "لبيتنا حديقة.",
+    "fr_example": "Notre maison a un jardin.",
+    "en_example": "Our house has a garden."
+  },
+  {
+    "ar": "باب",
+    "fr": "porte",
+    "en": "door",
+    "ar_example": "أغلق الباب من فضلك.",
+    "fr_example": "Ferme la porte, s'il te plaît.",
+    "en_example": "Please close the door."
+  },
+  {
+    "ar": "نافذة",
+    "fr": "fenêtre",
+    "en": "window",
+    "ar_example": "افتح النافذة، الجو حار.",
+    "fr_example": "Ouvre la fenêtre, il fait chaud.",
+    "en_example": "Open the window, it is hot."
+  },
+  {
+    "ar": "مطبخ",
+    "fr": "cuisine",
+    "en": "kitchen",
+    "ar_example": "أمي في المطبخ.",
+    "fr_example": "Maman est dans la cuisine.",
+    "en_example": "Mom is in the kitchen."
+  },
+  {
+    "ar": "خبز",
+    "fr": "pain",
+    "en": "bread",
+    "ar_example": "أشتري خبزًا طازجًا.",
+    "fr_example": "J'achète du pain frais.",
+    "en_example": "I buy fresh bread."
+  },
+  {
+    "ar": "وجبة",
+    "fr": "repas",
+    "en": "meal",
+    "ar_example": "الفطور وجبة مهمة.",
+    "fr_example": "Le petit-déjeuner est un repas important.",
+    "en_example": "Breakfast is an important meal."
+  },
+  {
+    "ar": "قطار",
+    "fr": "train",
+    "en": "train",
+    "ar_example": "يغادر القطار في الساعة الثامنة.",
+    "fr_example": "Le train part à huit heures.",
+    "en_example": "The train leaves at eight."
+  },
+  {
+    "ar": "مطار",
+    "fr": "aéroport",
+    "en": "airport",
+    "ar_example": "المطار بعيد عن هنا.",
+    "fr_example": "L'aéroport est loin d'ici.",
+    "en_example": "The airport is far from here."
+  },
+  {
+    "ar": "تذكرة",
+    "fr": "billet",
+    "en": "ticket",
+    "ar_example": "اشتريت تذكرة قطار.",
+    "fr_example": "J'ai acheté un billet de train.",
+    "en_example": "I bought a train ticket."
+  },
+  {
+    "ar": "رحلة",
+    "fr": "voyage",
+    "en": "trip",
+    "ar_example": "كانت الرحلة رائعة.",
+    "fr_example": "Le voyage était magnifique.",
+    "en_example": "The trip was wonderful."
+  },
+  {
+    "ar": "لغة",
+    "fr": "langue",
+    "en": "language",
+    "ar_example": "العربية لغة غنية.",
+    "fr_example": "L'arabe est une langue riche.",
+    "en_example": "Arabic is a rich language."
+  },
+  {
+    "ar": "كلمة",
+    "fr": "mot",
+    "en": "word",
+    "ar_example": "تعلّم كلمة جديدة كل يوم.",
+    "fr_example": "Apprends un nouveau mot chaque jour.",
+    "en_example": "Learn a new word every day."
+  },
+  {
+    "ar": "جملة",
+    "fr": "phrase",
+    "en": "sentence",
+    "ar_example": "اكتب جملة قصيرة.",
+    "fr_example": "Écris une phrase courte.",
+    "en_example": "Write a short sentence."
+  },
+  {
+    "ar": "درس",
+    "fr": "leçon",
+    "en": "lesson",
+    "ar_example": "درس اليوم سهل.",
+    "fr_example": "La leçon d'aujourd'hui est facile.",
+    "en_example": "Today's lesson is easy."
+  },
+  {
+    "ar": "أستاذ",
+    "fr": "professeur",
+    "en": "teacher",
+    "ar_example": "الأستاذ يشرح القاعدة.",
+    "fr_example": "Le professeur explique la règle.",
+    "en_example": "The teacher explains the rule."
+  },
+  {
+    "ar": "طالب",
+    "fr": "étudiant",
+    "en": "student",
+    "ar_example": "يدرس الطالب في المكتبة.",
+    "fr_example": "L'étudiant travaille à la bibliothèque.",
+    "en_example": "The student studies in the library."
+  },
+  {
+    "ar": "مكتبة",
+    "fr": "bibliothèque",
+    "en": "library",
+    "ar_example": "تفتح المكتبة في الساعة التاسعة.",
+    "fr_example": "La bibliothèque ouvre à neuf heures.",
+    "en_example": "The library opens at nine."
+  },
+  {
+    "ar": "امتحان",
+    "fr": "examen",
+    "en": "exam",
+    "ar_example": "أستعدّ للامتحان.",
+    "fr_example": "Je prépare l'examen.",
+    "en_example": "I am preparing for the exam."
+  },
+  {
+    "ar": "جامعة",
+    "fr": "université",
+    "en": "university",
+    "ar_example": "تدرس في الجامعة.",
+    "fr_example": "Elle étudie à l'université.",
+    "en_example": "She studies at the university."
+  },
+  {
+    "ar": "بحث",
+    "fr": "recherche",
+    "en": "research",
+    "ar_example": "هذا البحث يأخذ وقتًا طويلًا.",
+    "fr_example": "Cette recherche prend beaucoup de temps.",
+    "en_example": "This research takes a lot of time."
+  },
+  {
+    "ar": "منهج",
+    "fr": "méthode",
+    "en": "method",
+    "ar_example": "نحتاج إلى منهج واضح.",
+    "fr_example": "Il nous faut une méthode claire.",
+    "en_example": "We need a clear method."
+  },
+  {
+    "ar": "نتيجة",
+    "fr": "résultat",
+    "en": "result",
+    "ar_example": "النتيجة جيدة جدًا.",
+    "fr_example": "Le résultat est très bon.",
+    "en_example": "The result is very good."
+  },
+  {
+    "ar": "تحليل",
+    "fr": "analyse",
+    "en": "analysis",
+    "ar_example": "يُظهر التحليل تغيّرًا واضحًا.",
+    "fr_example": "L'analyse montre un changement clair.",
+    "en_example": "The analysis shows a clear change."
+  },
+  {
+    "ar": "فرضية",
+    "fr": "hypothèse",
+    "en": "hypothesis",
+    "ar_example": "لنختبر هذه الفرضية.",
+    "fr_example": "Testons cette hypothèse.",
+    "en_example": "Let's test this hypothesis."
+  },
+  {
+    "ar": "دليل",
+    "fr": "preuve",
+    "en": "evidence",
+    "ar_example": "لا يوجد أي دليل.",
+    "fr_example": "Il n'y a aucune preuve.",
+    "en_example": "There is no evidence."
+  },
+  {
+    "ar": "مصدر",
+    "fr": "source",
+    "en": "source",
+    "ar_example": "اذكر مصدرك دائمًا.",
+    "fr_example": "Cite toujours ta source.",
+    "en_example": "Always cite your source."
+  },
+  {
+    "ar": "ملخص",
+    "fr": "résumé",
+    "en": "summary",
+    "ar_example": "اكتب ملخصًا للنص.",
+    "fr_example": "Écris un résumé du texte.",
+    "en_example": "Write a summary of the text."
+  },
+  {
+    "ar": "خلاصة",
+    "fr": "conclusion",
+    "en": "conclusion",
+    "ar_example": "الخلاصة قصيرة.",
+    "fr_example": "La conclusion est courte.",
+    "en_example": "The conclusion is short."
+  },
+  {
+    "ar": "مقدمة",
+    "fr": "introduction",
+    "en": "introduction",
+    "ar_example": "اقرأ المقدمة أولًا.",
+    "fr_example": "Lis d'abord l'introduction.",
+    "en_example": "Read the introduction first."
+  },
+  {
+    "ar": "مثال",
+    "fr": "exemple",
+    "en": "example",
+    "ar_example": "أعطني مثالًا من فضلك.",
+    "fr_example": "Donne-moi un exemple, s'il te plaît.",
+    "en_example": "Give me an example, please."
+  },
+  {
+    "ar": "فكرة",
+    "fr": "idée",
+    "en": "idea",
+    "ar_example": "هذه فكرة ممتازة!",
+    "fr_example": "C'est une excellente idée !",
+    "en_example": "That is a great idea!"
+  },
+  {
+    "ar": "رأي",
+    "fr": "avis",
+    "en": "opinion",
+    "ar_example": "ما رأيك؟",
+    "fr_example": "Quel est ton avis ?",
+    "en_example": "What is your opinion?"
+  },
+  {
+    "ar": "حجة",
+    "fr": "argument",
+    "en": "argument",
+    "ar_example": "حجته مقنعة.",
+    "fr_example": "Son argument est convaincant.",
+    "en_example": "His argument is convincing."
+  },
+  {
+    "ar": "مشكلة",
+    "fr": "problème",
+    "en": "problem",
+    "ar_example": "حللنا المشكلة معًا.",
+    "fr_example": "Nous avons résolu le problème ensemble.",
+    "en_example": "We solved the problem together."
+  },
+  {
+    "ar": "حل",
+    "fr": "solution",
+    "en": "solution",
+    "ar_example": "لكل مشكلة حل.",
+    "fr_example": "Chaque problème a une solution.",
+    "en_example": "Every problem has a solution."
+  },
+  {
+    "ar": "خبرة",
+    "fr": "expérience",
+    "en": "experience",
+    "ar_example": "منحني هذا العمل خبرة كبيرة.",
+    "fr_example": "Ce travail m'a donné beaucoup d'expérience.",
+    "en_example": "This job gave me a lot of experience."
+  },
+  {
+    "ar": "مهارة",
+    "fr": "compétence",
+    "en": "skill",
+    "ar_example": "القراءة مهارة مهمة.",
+    "fr_example": "La lecture est une compétence importante.",
+    "en_example": "Reading is an important skill."
+  },
+  {
+    "ar": "تقدّم",
+    "fr": "progrès",
+    "en": "progress",
+    "ar_example": "ألاحظ تقدّمًا كل أسبوع.",
+    "fr_example": "Je vois des progrès chaque semaine.",
+    "en_example": "I see progress every week."
+  },
+  {
+    "ar": "خطأ",
+    "fr": "erreur",
+    "en": "mistake",
+    "ar_example": "تعلّم من أخطائك.",
+    "fr_example": "Apprends de tes erreurs.",
+    "en_example": "Learn from your mistakes."
+  },
+  {
+    "ar": "نصيحة",
+    "fr": "conseil",
+    "en": "advice",
+    "ar_example": "شكرًا على نصيحتك.",
+    "fr_example": "Merci pour ton conseil.",
+    "en_example": "Thank you for your advice."
+  },
+  {
+    "ar": "قرار",
+    "fr": "décision",
+    "en": "decision",
+    "ar_example": "كان قرارًا صعبًا.",
+    "fr_example": "C'était une décision difficile.",
+    "en_example": "It was a difficult decision."
+  },
+  {
+    "ar": "اختيار",
+    "fr": "choix",
+    "en": "choice",
+    "ar_example": "الاختيار لك.",
+    "fr_example": "Le choix t'appartient.",
+    "en_example": "The choice is yours."
+  },
+  {
+    "ar": "فرصة",
+    "fr": "occasion",
+    "en": "opportunity",
+    "ar_example": "هذه فرصة جيدة.",
+    "fr_example": "C'est une bonne occasion.",
+    "en_example": "This is a good opportunity."
+  },
+  {
+    "ar": "مستقبل",
+    "fr": "avenir",
+    "en": "future",
+    "ar_example": "فكّر في مستقبلك.",
+    "fr_example": "Pense à ton avenir.",
+    "en_example": "Think about your future."
+  },
+  {
+    "ar": "ماضٍ",
+    "fr": "passé",
+    "en": "past",
+    "ar_example": "تعلّم من الماضي.",
+    "fr_example": "Apprends du passé.",
+    "en_example": "Learn from the past."
+  },
+  {
+    "ar": "ذاكرة",
+    "fr": "mémoire",
+    "en": "memory",
+    "ar_example": "لديها ذاكرة جيدة.",
+    "fr_example": "Elle a une bonne mémoire.",
+    "en_example": "She has a good memory."
+  },
+  {
+    "ar": "انتباه",
+    "fr": "attention",
+    "en": "attention",
+    "ar_example": "انتبه في الفصل.",
+    "fr_example": "Fais attention en classe.",
+    "en_example": "Pay attention in class."
+  },
+  {
+    "ar": "تركيز",
+    "fr": "concentration",
+    "en": "concentration",
+    "ar_example": "التركيز يحتاج إلى مكان هادئ.",
+    "fr_example": "La concentration demande un endroit calme.",
+    "en_example": "Concentration needs a quiet place."
+  },
+  {
+    "ar": "راحة",
+    "fr": "repos",
+    "en": "rest",
+    "ar_example": "خذ قسطًا من الراحة بعد العمل.",
+    "fr_example": "Prends du repos après le travail.",
+    "en_example": "Take some rest after work."
+  },
+  {
+    "ar": "نوم",
+    "fr": "sommeil",
+    "en": "sleep",
+    "ar_example": "النوم مهم للدماغ.",
+    "fr_example": "Le sommeil est important pour le cerveau.",
+    "en_example": "Sleep is important for the brain."
+  },
+  {
+    "ar": "طبيب",
+    "fr": "médecin",
+    "en": "doctor",
+    "ar_example": "عندي موعد مع الطبيب.",
+    "fr_example": "J'ai rendez-vous chez le médecin.",
+    "en_example": "I have an appointment with the doctor."
+  },
+  {
+    "ar": "موعد",
+    "fr": "rendez-vous",
+    "en": "appointment",
+    "ar_example": "موعدي في الساعة العاشرة.",
+    "fr_example": "Mon rendez-vous est à dix heures.",
+    "en_example": "My appointment is at ten."
+  },
+  {
+    "ar": "اجتماع",
+    "fr": "réunion",
+    "en": "meeting",
+    "ar_example": "سيبدأ الاجتماع قريبًا.",
+    "fr_example": "La réunion commence bientôt.",
+    "en_example": "The meeting starts soon."
+  },
+  {
+    "ar": "شركة",
+    "fr": "entreprise",
+    "en": "company",
+    "ar_example": "تعمل في شركة كبيرة.",
+    "fr_example": "Elle travaille dans une grande entreprise.",
+    "en_example": "She works for a big company."
+  },
+  {
+    "ar": "مشروع",
+    "fr": "projet",
+    "en": "project",
+    "ar_example": "مشروعنا على وشك الانتهاء.",
+    "fr_example": "Notre projet est presque fini.",
+    "en_example": "Our project is almost finished."
+  },
+  {
+    "ar": "مهمة",
+    "fr": "tâche",
+    "en": "task",
+    "ar_example": "أنهِ هذه المهمة اليوم.",
+    "fr_example": "Termine cette tâche aujourd'hui.",
+    "en_example": "Finish this task today."
+  },
+  {
+    "ar": "موعد نهائي",
+    "fr": "échéance",
+    "en": "deadline",
+    "ar_example": "الموعد النهائي يوم الجمعة.",
+    "fr_example": "L'échéance est vendredi.",
+    "en_example": "The deadline is on Friday."
+  },
+  {
+    "ar": "رسالة",
+    "fr": "message",
+    "en": "message",
+    "ar_example": "أرسلت إليك رسالة.",
+    "fr_example": "Je t'ai envoyé un message.",
+    "en_example": "I sent you a message."
+  },
+  {
+    "ar": "هاتف",
+    "fr": "téléphone",
+    "en": "phone",
+    "ar_example": "هاتفي على الطاولة.",
+    "fr_example": "Mon téléphone est sur la table.",
+    "en_example": "My phone is on the table."
+  },
+  {
+    "ar": "حاسوب",
+    "fr": "ordinateur",
+    "en": "computer",
+    "ar_example": "أعمل على حاسوبي.",
+    "fr_example": "Je travaille sur mon ordinateur.",
+    "en_example": "I work on my computer."
+  },
+  {
+    "ar": "شاشة",
+    "fr": "écran",
+    "en": "screen",
+    "ar_example": "الشاشة ساطعة جدًا.",
+    "fr_example": "L'écran est trop lumineux.",
+    "en_example": "The screen is too bright."
+  },
+  {
+    "ar": "ملف",
+    "fr": "fichier",
+    "en": "file",
+    "ar_example": "احفظ الملف قبل الإغلاق.",
+    "fr_example": "Enregistre le fichier avant de fermer.",
+    "en_example": "Save the file before closing."
+  },
+  {
+    "ar": "بيانات",
+    "fr": "données",
+    "en": "data",
+    "ar_example": "البيانات جاهزة.",
+    "fr_example": "Les données sont prêtes.",
+    "en_example": "The data is ready."
+  },
+  {
+    "ar": "معلومة",
+    "fr": "information",
+    "en": "information",
+    "ar_example": "هذه المعلومة مفيدة.",
+    "fr_example": "Cette information est utile.",
+    "en_example": "This information is useful."
+  },
+  {
+    "ar": "علم",
+    "fr": "science",
+    "en": "science",
+    "ar_example": "العلم يساعدنا على فهم العالم.",
+    "fr_example": "La science nous aide à comprendre le monde.",
+    "en_example": "Science helps us understand the world."
+  },
+  {
+    "ar": "تاريخ",
+    "fr": "histoire",
+    "en": "history",
+    "ar_example": "التاريخ يعلّمنا دروسًا كثيرة.",
+    "fr_example": "L'histoire nous apprend beaucoup de leçons.",
+    "en_example": "History teaches us many lessons."
+  },
+  {
+    "ar": "طبيعة",
+    "fr": "nature",
+    "en": "nature",
+    "ar_example": "نتمشّى في الطبيعة في عطلة نهاية الأسبوع.",
+    "fr_example": "Nous marchons dans la nature le week-end.",
+    "en_example": "We walk in nature on weekends."
+  },
+  {
+    "ar": "بحر",
+    "fr": "mer",
+    "en": "sea",
+    "ar_example": "البحر هادئ اليوم.",
+    "fr_example": "La mer est calme aujourd'hui.",
+    "en_example": "The sea is calm today."
+  },
+  {
+    "ar": "جبل",
+    "fr": "montagne",
+    "en": "mountain",
+    "ar_example": "صعدنا الجبل.",
+    "fr_example": "Nous avons gravi la montagne.",
+    "en_example": "We climbed the mountain."
+  },
+  {
+    "ar": "سماء",
+    "fr": "ciel",
+    "en": "sky",
+    "ar_example": "السماء زرقاء.",
+    "fr_example": "Le ciel est bleu.",
+    "en_example": "The sky is blue."
+  },
+  {
+    "ar": "مطر",
+    "fr": "pluie",
+    "en": "rain",
+    "ar_example": "توقّف المطر.",
+    "fr_example": "La pluie s'est arrêtée.",
+    "en_example": "The rain has stopped."
+  },
+  {
+    "ar": "شمس",
+    "fr": "soleil",
+    "en": "sun",
+    "ar_example": "تشرق الشمس باكرًا.",
+    "fr_example": "Le soleil se lève tôt.",
+    "en_example": "The sun rises early."
+  },
+  {
+    "ar": "شجرة",
+    "fr": "arbre",
+    "en": "tree",
+    "ar_example": "هذه الشجرة طويلة جدًا.",
+    "fr_example": "Cet arbre est très grand.",
+    "en_example": "This tree is very tall."
+  },
+  {
+    "ar": "زهرة",
+    "fr": "fleur",
+    "en": "flower",
+    "ar_example": "أهدتني زهرة.",
+    "fr_example": "Elle m'a offert une fleur.",
+    "en_example": "She gave me a flower."
+  },
+  {
+    "ar": "حيوان",
+    "fr": "animal",
+    "en": "animal",
+    "ar_example": "القط حيوان هادئ.",
+    "fr_example": "Le chat est un animal calme.",
+    "en_example": "The cat is a calm animal."
+  },
+  {
+    "ar": "طفل",
+    "fr": "enfant",
+    "en": "child",
+    "ar_example": "الطفل يلعب في الخارج.",
+    "fr_example": "L'enfant joue dehors.",
+    "en_example": "The child is playing outside."
+  },
+  {
+    "ar": "جار",
+    "fr": "voisin",
+    "en": "neighbor",
+    "ar_example": "جارنا لطيف جدًا.",
+    "fr_example": "Notre voisin est très gentil.",
+    "en_example": "Our neighbor is very kind."
+  },
+  {
+    "ar": "ضيف",
+    "fr": "invité",
+    "en": "guest",
+    "ar_example": "لدينا ضيف الليلة.",
+    "fr_example": "Nous avons un invité ce soir.",
+    "en_example": "We have a guest tonight."
+  },
+  {
+    "ar": "هدية",
+    "fr": "cadeau",
+    "en": "gift",
+    "ar_example": "شكرًا على الهدية.",
+    "fr_example": "Merci pour le cadeau.",
+    "en_example": "Thank you for the gift."
+  },
+  {
+    "ar": "فرح",
+    "fr": "joie",
+    "en": "joy",
+    "ar_example": "وجهها مليء بالفرح.",
+    "fr_example": "Son visage est plein de joie.",
+    "en_example": "Her face is full of joy."
+  },
+  {
+    "ar": "أمل",
+    "fr": "espoir",
+    "en": "hope",
+    "ar_example": "لا تفقد الأمل أبدًا.",
+    "fr_example": "Ne perds jamais espoir.",
+    "en_example": "Never lose hope."
+  },
+  {
+    "ar": "خوف",
+    "fr": "peur",
+    "en": "fear",
+    "ar_example": "الخوف أمر طبيعي قبل الامتحان.",
+    "fr_example": "La peur est normale avant un examen.",
+    "en_example": "Fear is normal before an exam."
+  },
+  {
+    "ar": "شجاعة",
+    "fr": "courage",
+    "en": "courage",
+    "ar_example": "التحدث أمام الناس يحتاج إلى شجاعة.",
+    "fr_example": "Parler en public demande du courage.",
+    "en_example": "Speaking in public needs courage."
+  },
+  {
+    "ar": "لطف",
+    "fr": "gentillesse",
+    "en": "kindness",
+    "ar_example": "اللطف لا يكلّف شيئًا.",
+    "fr_example": "La gentillesse ne coûte rien.",
+    "en_example": "Kindness costs nothing."
+  },
+  {
+    "ar": "احترام",
+    "fr": "respect",
+    "en": "respect",
+    "ar_example": "الاحترام أساس الصداقة.",
+    "fr_example": "Le respect est la base de l'amitié.",
+    "en_example": "Respect is the basis of friendship."
+  },
+  {
+    "ar": "ثقة",
+    "fr": "confiance",
+    "en": "trust",
+    "ar_example": "الثقة تحتاج إلى وقت.",
+    "fr_example": "La confiance prend du temps.",
+    "en_example": "Trust takes time."
+  },
+  {
+    "ar": "صدق",
+    "fr": "honnêteté",
+    "en": "honesty",
+    "ar_example": "الصدق هو الخيار الأفضل دائمًا.",
+    "fr_example": "L'honnêteté est toujours le meilleur choix.",
+    "en_example": "Honesty is always the best choice."
+  },
+  {
+    "ar": "حرية",
+    "fr": "liberté",
+    "en": "freedom",
+    "ar_example": "الحرية ثمينة.",
+    "fr_example": "La liberté est précieuse.",
+    "en_example": "Freedom is precious."
+  },
+  {
+    "ar": "سلام",
+    "fr": "paix",
+    "en": "peace",
+    "ar_example": "كلنا نريد السلام.",
+    "fr_example": "Nous voulons tous la paix.",
+    "en_example": "We all want peace."
+  },
+  {
+    "ar": "مساعدة",
+    "fr": "aide",
+    "en": "help",
+    "ar_example": "شكرًا على مساعدتك.",
+    "fr_example": "Merci pour ton aide.",
+    "en_example": "Thank you for your help."
+  },
+  {
+    "ar": "عادة",
+    "fr": "habitude",
+    "en": "habit",
+    "ar_example": "القراءة عادة جيدة.",
+    "fr_example": "La lecture est une bonne habitude.",
+    "en_example": "Reading is a good habit."
+  },
+  {
+    "ar": "قاعدة",
+    "fr": "règle",
+    "en": "rule",
+    "ar_example": "احترم قواعد اللعبة.",
+    "fr_example": "Respecte les règles du jeu.",
+    "en_example": "Follow the rules of the game."
+  },
+  {
+    "ar": "قانون",
+    "fr": "loi",
+    "en": "law",
+    "ar_example": "يجب على الجميع احترام القانون.",
+    "fr_example": "Tout le monde doit respecter la loi.",
+    "en_example": "Everyone must respect the law."
+  },
+  {
+    "ar": "حق",
+    "fr": "droit",
+    "en": "right",
+    "ar_example": "التعليم حق للجميع.",
+    "fr_example": "L'éducation est un droit pour tous.",
+    "en_example": "Education is a right for everyone."
+  },
+  {
+    "ar": "واجب",
+    "fr": "devoir",
+    "en": "duty",
+    "ar_example": "مساعدة الوالدين واجب.",
+    "fr_example": "Aider ses parents est un devoir.",
+    "en_example": "Helping your parents is a duty."
+  },
+  {
+    "ar": "مجتمع",
+    "fr": "société",
+    "en": "society",
+    "ar_example": "التعليم يغيّر المجتمع.",
+    "fr_example": "L'éducation change la société.",
+    "en_example": "Education changes society."
+  },
+  {
+    "ar": "ثقافة",
+    "fr": "culture",
+    "en": "culture",
+    "ar_example": "لكل بلد ثقافته الخاصة.",
+    "fr_example": "Chaque pays a sa propre culture.",
+    "en_example": "Every country has its own culture."
+  },
+  {
+    "ar": "بلد",
+    "fr": "pays",
+    "en": "country",
+    "ar_example": "من أي بلد أنت؟",
+    "fr_example": "De quel pays viens-tu ?",
+    "en_example": "Which country are you from?"
+  },
+  {
+    "ar": "عالم",
+    "fr": "monde",
+    "en": "world",
+    "ar_example": "العالم كبير.",
+    "fr_example": "Le monde est grand.",
+    "en_example": "The world is big."
+  },
+  {
+    "ar": "بيئة",
+    "fr": "environnement",
+    "en": "environment",
+    "ar_example": "احمِ البيئة.",
+    "fr_example": "Protège l'environnement.",
+    "en_example": "Protect the environment."
+  },
+  {
+    "ar": "طاقة",
+    "fr": "énergie",
+    "en": "energy",
+    "ar_example": "الطاقة الشمسية نظيفة.",
+    "fr_example": "L'énergie solaire est propre.",
+    "en_example": "Solar energy is clean."
+  },
+  {
+    "ar": "اقتصاد",
+    "fr": "économie",
+    "en": "economy",
+    "ar_example": "الاقتصاد ينمو ببطء.",
+    "fr_example": "L'économie progresse lentement.",
+    "en_example": "The economy is growing slowly."
+  },
+  {
+    "ar": "تنمية",
+    "fr": "développement",
+    "en": "development",
+    "ar_example": "التعليم يدعم التنمية.",
+    "fr_example": "L'éducation soutient le développement.",
+    "en_example": "Education supports development."
+  },
+  {
+    "ar": "تكنولوجيا",
+    "fr": "technologie",
+    "en": "technology",
+    "ar_example": "التكنولوجيا تتغيّر بسرعة.",
+    "fr_example": "La technologie change vite.",
+    "en_example": "Technology changes quickly."
+  },
+  {
+    "ar": "أداة",
+    "fr": "outil",
+    "en": "tool",
+    "ar_example": "هذه الأداة عملية جدًا.",
+    "fr_example": "Cet outil est très pratique.",
+    "en_example": "This tool is very practical."
+  },
+  {
+    "ar": "نظام",
+    "fr": "système",
+    "en": "system",
+    "ar_example": "النظام يعمل جيدًا.",
+    "fr_example": "Le système fonctionne bien.",
+    "en_example": "The system works well."
+  },
+  {
+    "ar": "عملية",
+    "fr": "processus",
+    "en": "process",
+    "ar_example": "التعلّم عملية طويلة.",
+    "fr_example": "L'apprentissage est un long processus.",
+    "en_example": "Learning is a long process."
+  },
+  {
+    "ar": "بنية",
+    "fr": "structure",
+    "en": "structure",
+    "ar_example": "للنص بنية واضحة.",
+    "fr_example": "Le texte a une structure claire.",
+    "en_example": "The text has a clear structure."
+  },
+  {
+    "ar": "مفهوم",
+    "fr": "concept",
+    "en": "concept",
+    "ar_example": "هذا المفهوم سهل الفهم.",
+    "fr_example": "Ce concept est facile à comprendre.",
+    "en_example": "This concept is easy to understand."
+  },
+  {
+    "ar": "تعريف",
+    "fr": "définition",
+    "en": "definition",
+    "ar_example": "ابحث عن التعريف في القاموس.",
+    "fr_example": "Cherche la définition dans le dictionnaire.",
+    "en_example": "Look for the definition in the dictionary."
+  },
+  {
+    "ar": "قاموس",
+    "fr": "dictionnaire",
+    "en": "dictionary",
+    "ar_example": "أستعمل قاموسًا للترجمة.",
+    "fr_example": "J'utilise un dictionnaire pour traduire.",
+    "en_example": "I use a dictionary to translate."
+  },
+  {
+    "ar": "ترجمة",
+    "fr": "traduction",
+    "en": "translation",
+    "ar_example": "الترجمة صحيحة.",
+    "fr_example": "La traduction est correcte.",
+    "en_example": "The translation is correct."
+  },
+  {
+    "ar": "مقارنة",
+    "fr": "comparaison",
+    "en": "comparison",
+    "ar_example": "أجرِ مقارنة بين النصّين.",
+    "fr_example": "Fais une comparaison entre les deux textes.",
+    "en_example": "Make a comparison between the two texts."
+  },
+  {
+    "ar": "فرق",
+    "fr": "différence",
+    "en": "difference",
+    "ar_example": "ما الفرق بينهما؟",
+    "fr_example": "Quelle est la différence entre eux ?",
+    "en_example": "What is the difference between them?"
+  },
+  {
+    "ar": "سبب",
+    "fr": "cause",
+    "en": "cause",
+    "ar_example": "ما سبب التأخير؟",
+    "fr_example": "Quelle est la cause du retard ?",
+    "en_example": "What is the cause of the delay?"
+  },
+  {
+    "ar": "أثر",
+    "fr": "effet",
+    "en": "effect",
+    "ar_example": "للموسيقى أثر إيجابي على المزاج.",
+    "fr_example": "La musique a un effet positif sur l'humeur.",
+    "en_example": "Music has a positive effect on mood."
+  },
+  {
+    "ar": "جودة",
+    "fr": "qualité",
+    "en": "quality",
+    "ar_example": "الجودة أهم من الكمية.",
+    "fr_example": "La qualité compte plus que la quantité.",
+    "en_example": "Quality matters more than quantity."
+  },
+  {
+    "ar": "مستوى",
+    "fr": "niveau",
+    "en": "level",
+    "ar_example": "مستواي في الإنجليزية يتحسّن.",
+    "fr_example": "Mon niveau en anglais s'améliore.",
+    "en_example": "My level in English is improving."
+  },
+  {
+    "ar": "خطوة",
+    "fr": "étape",
+    "en": "step",
+    "ar_example": "هذه هي الخطوة الأولى.",
+    "fr_example": "C'est la première étape.",
+    "en_example": "This is the first step."
+  },
+  {
+    "ar": "خطة",
+    "fr": "plan",
+    "en": "plan",
+    "ar_example": "نحتاج إلى خطة جيدة.",
+    "fr_example": "Il nous faut un bon plan.",
+    "en_example": "We need a good plan."
+  },
+  {
+    "ar": "نجاح",
+    "fr": "succès",
+    "en": "success",
+    "ar_example": "تهانينا على نجاحك!",
+    "fr_example": "Félicitations pour ton succès !",
+    "en_example": "Congratulations on your success!"
+  },
+  {
+    "ar": "فشل",
+    "fr": "échec",
+    "en": "failure",
+    "ar_example": "الفشل جزء من التعلّم.",
+    "fr_example": "L'échec fait partie de l'apprentissage.",
+    "en_example": "Failure is part of learning."
+  },
+  {
+    "ar": "تحدٍّ",
+    "fr": "défi",
+    "en": "challenge",
+    "ar_example": "هذا الامتحان تحدٍّ حقيقي.",
+    "fr_example": "Cet examen est un vrai défi.",
+    "en_example": "This exam is a real challenge."
+  },
+  {
+    "ar": "مسؤولية",
+    "fr": "responsabilité",
+    "en": "responsibility",
+    "ar_example": "هذه مسؤوليتي.",
+    "fr_example": "C'est ma responsabilité.",
+    "en_example": "This is my responsibility."
+  },
+  {
+    "ar": "فهم",
+    "fr": "compréhension",
+    "en": "understanding",
+    "ar_example": "القراءة تحسّن الفهم.",
+    "fr_example": "La lecture améliore la compréhension.",
+    "en_example": "Reading improves understanding."
+  },
+  {
+    "ar": "فضول",
+    "fr": "curiosité",
+    "en": "curiosity",
+    "ar_example": "الفضول يساعدنا على التعلّم.",
+    "fr_example": "La curiosité nous aide à apprendre.",
+    "en_example": "Curiosity helps us learn."
+  },
+  {
+    "ar": "امتنان",
+    "fr": "gratitude",
+    "en": "gratitude",
+    "ar_example": "أشعر بالامتنان كل صباح.",
+    "fr_example": "Je ressens de la gratitude chaque matin.",
+    "en_example": "I feel grateful every morning."
+  }
+]

@@ -1,4 +1,4 @@
-"""Morning brief: today's weather and upcoming deadlines, sent to Telegram.
+"""Morning brief: verse, weather, deadlines and word of the day, sent to Telegram.
 
 The message itself is in French; dates are formatted with hardcoded name
 lists so the output does not depend on the system locale.
@@ -18,9 +18,16 @@ import config
 
 BASE_DIR = Path(__file__).parent
 
-WEATHER_ATTEMPTS = 3
-WEATHER_TIMEOUT = 20  # seconds per attempt
-WEATHER_BACKOFF = 2  # seconds, doubled after each failed attempt
+HTTP_ATTEMPTS = 3
+HTTP_TIMEOUT = 20  # seconds per attempt
+HTTP_BACKOFF = 2  # seconds, doubled after each failed attempt
+
+TELEGRAM_LIMIT = 4096  # max characters per Telegram message
+
+QURAN_API = "https://api.alquran.cloud/v1/ayah/{number}/editions/quran-uthmani,ar.muyassar"
+QURAN_TOTAL_AYAHS = 6236
+QURAN_MAX_LENGTH = 400  # skip longer ayahs and take the next one
+QURAN_MAX_SKIPS = 30
 
 # French day/month names (Monday = 0), independent of the system locale.
 DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
@@ -67,7 +74,12 @@ WEATHER_CODES = {
 }
 
 # Section names used in the fallback line when a source fails.
-SOURCE_LABELS = {"get_weather": "Météo", "get_deadlines": "Échéances"}
+SOURCE_LABELS = {
+    "get_verse": "Verset du jour",
+    "get_weather": "Météo",
+    "get_deadlines": "Échéances",
+    "get_word": "Mot du jour",
+}
 
 
 def today() -> date:
@@ -89,8 +101,72 @@ def _fr_number(value) -> str:
     return str(value).replace(".", ",")
 
 
+def _get_json(url: str, params: dict | None = None, label: str = "request") -> dict:
+    """GET a JSON API, retrying on timeouts, connection errors, 429 and 5xx."""
+    delay = HTTP_BACKOFF
+    for attempt in range(1, HTTP_ATTEMPTS + 1):
+        try:
+            resp = requests.get(url, params=params, timeout=HTTP_TIMEOUT)
+            if resp.status_code == 429 or resp.status_code >= 500:
+                resp.raise_for_status()
+            break
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as exc:
+            if attempt == HTTP_ATTEMPTS:
+                raise
+            status = getattr(exc.response, "status_code", "")
+            print(
+                f"[retry] {label} attempt {attempt} failed: "
+                f"{type(exc).__name__} {status}, retrying in {delay}s",
+                file=sys.stderr,
+            )
+            time.sleep(delay)
+            delay *= 2
+    resp.raise_for_status()  # other 4xx (e.g. bad parameters): no retry
+    return resp.json()
+
+
+def _fetch_ayah(number: int) -> tuple[dict, dict]:
+    """Return (arabic, tafsir) edition entries for a global ayah number."""
+    data = _get_json(QURAN_API.format(number=number), label="get_verse")["data"]
+    by_edition = {entry["edition"]["identifier"]: entry for entry in data}
+    return by_edition["quran-uthmani"], by_edition["ar.muyassar"]
+
+
+def get_verse() -> str:
+    # Same ayah for the whole day, cycling through all ayahs over time.
+    number = today().toordinal() % QURAN_TOTAL_AYAHS + 1
+    for _ in range(QURAN_MAX_SKIPS):
+        ayah, tafsir = _fetch_ayah(number)
+        if len(ayah["text"]) <= QURAN_MAX_LENGTH:
+            break
+        number = number % QURAN_TOTAL_AYAHS + 1
+    else:
+        raise RuntimeError("no short enough ayah found")
+
+    # Text is shown exactly as returned by the API.
+    return "\n".join([
+        "📖 <b>آية اليوم</b>",
+        f"﴿ {_escape(ayah['text'])} ﴾",
+        f"{_escape(ayah['surah']['name'])} — الآية {ayah['numberInSurah']}",
+        f"<b>التفسير:</b> {_escape(tafsir['text'])}",
+    ])
+
+
+def get_word() -> str:
+    path = Path(config.WORDS_FILE)
+    if not path.is_absolute():
+        path = BASE_DIR / path
+    words = json.loads(path.read_text(encoding="utf-8"))
+    word = words[today().timetuple().tm_yday % len(words)]
+    return "\n".join([
+        "💬 <b>Mot du jour</b>",
+        f"🇸🇦 <b>{_escape(word['ar'])}</b> — {_escape(word['ar_example'])}",
+        f"🇫🇷 <b>{_escape(word['fr'])}</b> — {_escape(word['fr_example'])}",
+        f"🇬🇧 <b>{_escape(word['en'])}</b> — {_escape(word['en_example'])}",
+    ])
+
+
 def _fetch_forecast() -> dict:
-    """Call Open-Meteo, retrying on timeouts, connection errors, 429 and 5xx."""
     params = {
         "latitude": config.LATITUDE,
         "longitude": config.LONGITUDE,
@@ -100,30 +176,9 @@ def _fetch_forecast() -> dict:
         "precipitation_probability_max,wind_speed_10m_max",
         "forecast_days": 1,
     }
-    delay = WEATHER_BACKOFF
-    for attempt in range(1, WEATHER_ATTEMPTS + 1):
-        try:
-            resp = requests.get(
-                "https://api.open-meteo.com/v1/forecast",
-                params=params,
-                timeout=WEATHER_TIMEOUT,
-            )
-            if resp.status_code == 429 or resp.status_code >= 500:
-                resp.raise_for_status()
-            break
-        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as exc:
-            if attempt == WEATHER_ATTEMPTS:
-                raise
-            status = getattr(exc.response, "status_code", "")
-            print(
-                f"[retry] get_weather attempt {attempt} failed: "
-                f"{type(exc).__name__} {status}, retrying in {delay}s",
-                file=sys.stderr,
-            )
-            time.sleep(delay)
-            delay *= 2
-    resp.raise_for_status()  # other 4xx (e.g. bad coordinates): no retry
-    return resp.json()
+    return _get_json(
+        "https://api.open-meteo.com/v1/forecast", params=params, label="get_weather"
+    )
 
 
 def get_weather() -> str:
@@ -188,9 +243,19 @@ def _escape(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def build_message() -> str:
+def enabled_sources() -> list:
+    sources = []
+    if config.ENABLE_QURAN:
+        sources.append(get_verse)
+    sources += [get_weather, get_deadlines]
+    if config.ENABLE_WORD:
+        sources.append(get_word)
+    return sources
+
+
+def build_sections() -> list[str]:
     sections = [f"🌅 <b>Bonjour !</b> {format_long_date(today())}"]
-    for source in (get_weather, get_deadlines):
+    for source in enabled_sources():
         try:
             sections.append(source())
         except Exception as exc:  # one failing source must not block the rest
@@ -201,7 +266,29 @@ def build_message() -> str:
                   file=sys.stderr)
             label = SOURCE_LABELS.get(source.__name__, source.__name__)
             sections.append(f"⚠️ <b>{label}</b> indisponible aujourd'hui.")
-    return "\n\n".join(sections)
+    return sections
+
+
+def split_messages(sections: list[str], limit: int = TELEGRAM_LIMIT) -> list[str]:
+    """Join sections into as few messages as possible, splitting only at
+    section boundaries. A single oversized section is cut as a last resort."""
+    messages, current = [], ""
+    for section in sections:
+        while len(section) > limit:  # should not happen with normal content
+            if current:
+                messages.append(current)
+                current = ""
+            messages.append(section[:limit])
+            section = section[limit:]
+        candidate = f"{current}\n\n{section}" if current else section
+        if len(candidate) <= limit:
+            current = candidate
+        else:
+            messages.append(current)
+            current = section
+    if current:
+        messages.append(current)
+    return messages
 
 
 def send(message: str) -> None:
@@ -229,12 +316,16 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    message = build_message()
+    messages = split_messages(build_sections())
     if args.dry_run or config.DRY_RUN:
-        print(message)
+        for i, message in enumerate(messages, 1):
+            if len(messages) > 1:
+                print(f"----- message {i}/{len(messages)} ({len(message)} chars) -----")
+            print(message)
         return
-    send(message)
-    print("Message sent.")
+    for message in messages:
+        send(message)
+    print(f"Sent {len(messages)} message(s).")
 
 
 if __name__ == "__main__":
