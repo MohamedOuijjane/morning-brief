@@ -22,8 +22,9 @@ jobs:
           python-version: "3.12"
           cache: pip
 
+      # Locked versions, verified hashes, wheels only (no setup scripts).
       - name: Install
-        run: pip install -r requirements.txt "pytest>=8" "ruff>=0.6"
+        run: "pip install --only-binary :all: --require-hashes -r requirements-dev.txt"
 
       - name: Lint
         run: ruff check .

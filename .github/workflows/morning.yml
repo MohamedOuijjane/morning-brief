@@ -45,6 +45,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
+      # Locked versions, verified hashes, wheels only (no setup scripts).
+      - name: Install
+        run: "pip install --only-binary :all: --require-hashes -r requirements.txt"
+
       - name: Check local hour
         id: gate
         env:
@@ -55,18 +59,13 @@ jobs:
           MORNING_HOUR: ${{ vars.MORNING_HOUR }}
           EVENING_HOUR: ${{ vars.EVENING_HOUR }}
           WEEKLY_HOUR: ${{ vars.WEEKLY_HOUR }}
-        run: |
-          python -m pip install --quiet --disable-pip-version-check "tzdata>=2026.6"
-          python schedule_check.py
+        run: python schedule_check.py
 
       - name: Simulate failure
         if: ${{ inputs.simulate_failure }}
         run: |
           echo "Failing on purpose to test the alert."
           exit 1
-
-      - if: steps.gate.outputs.send == 'true'
-        run: pip install -r requirements.txt
 
       - name: Send message
         if: steps.gate.outputs.send == 'true'
