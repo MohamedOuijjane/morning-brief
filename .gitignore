@@ -22,3 +22,6 @@ gcal_urls.txt
 
 # Private bedtime notes (never commit)
 night_notes.json
+
+# Private word list (never commit)
+words.json

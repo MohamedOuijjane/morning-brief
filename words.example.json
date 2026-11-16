@@ -1,0 +1,42 @@
+[
+  {
+    "ar": "حديقة",
+    "fr": "jardin",
+    "en": "garden",
+    "ar_example": "نجلس في الحديقة بعد الظهر.",
+    "fr_example": "Nous nous asseyons dans le jardin l'après-midi.",
+    "en_example": "We sit in the garden in the afternoon."
+  },
+  {
+    "ar": "قهوة",
+    "fr": "café",
+    "en": "coffee",
+    "ar_example": "أشرب فنجان قهوة في الصباح.",
+    "fr_example": "Je bois une tasse de café le matin.",
+    "en_example": "I drink a cup of coffee in the morning."
+  },
+  {
+    "ar": "دفتر",
+    "fr": "cahier",
+    "en": "notebook",
+    "ar_example": "أكتب أفكاري في دفتر صغير.",
+    "fr_example": "J'écris mes idées dans un petit cahier.",
+    "en_example": "I write my ideas in a small notebook."
+  },
+  {
+    "ar": "ابتسامة",
+    "fr": "sourire",
+    "en": "smile",
+    "ar_example": "ابتسامتك تجعل اليوم أجمل.",
+    "fr_example": "Ton sourire rend la journée plus belle.",
+    "en_example": "Your smile makes the day nicer."
+  },
+  {
+    "ar": "جسر",
+    "fr": "pont",
+    "en": "bridge",
+    "ar_example": "نعبر الجسر للوصول إلى المدينة.",
+    "fr_example": "Nous traversons le pont pour aller en ville.",
+    "en_example": "We cross the bridge to reach the city."
+  }
+]

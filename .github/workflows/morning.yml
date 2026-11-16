@@ -78,6 +78,7 @@ jobs:
           # Private; empty when unset -> falls back to the *.example.json files
           SELF_TALK_JSON: ${{ secrets.SELF_TALK_JSON }}
           NIGHT_NOTES_JSON: ${{ secrets.NIGHT_NOTES_JSON }}
+          WORDS_JSON: ${{ secrets.WORDS_JSON }}
           # Private iCal URLs; empty when unset -> agenda sections are skipped
           GCAL_ICS_URLS: ${{ secrets.GCAL_ICS_URLS }}
           GCAL_ICS_URL: ${{ secrets.GCAL_ICS_URL }}
