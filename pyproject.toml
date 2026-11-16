@@ -1,0 +1,28 @@
+[project]
+name = "morning-brief"
+version = "1.0.0"
+description = "Daily Telegram messages (morning, evening, weekly) sent by GitHub Actions"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.31,<3",
+    "icalendar>=6,<8",
+    "recurring-ical-events>=3,<4",
+    "tzdata>=2026.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

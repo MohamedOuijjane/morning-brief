@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Same timezone rules as the scheduled workflow (pinned tzdata package).
+      PYTHONTZPATH: ""
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt "pytest>=8" "ruff>=0.6"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Test
+        run: pytest
