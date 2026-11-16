@@ -48,3 +48,13 @@ DRY_RUN = _flag("DRY_RUN", "false")
 ENABLE_QURAN = _flag("ENABLE_QURAN", "true")
 ENABLE_WORD = _flag("ENABLE_WORD", "true")
 WORDS_FILE = _get("WORDS_FILE", "words.json")
+
+# Self-talk messages are private: raw JSON from a secret, else the local
+# (git-ignored) file, else the committed placeholder example.
+ENABLE_SELF_TALK = _flag("ENABLE_SELF_TALK", "true")
+SELF_TALK_JSON = _get("SELF_TALK_JSON")
+SELF_TALK_FILE = _get("SELF_TALK_FILE", "self_talk.json")
+SELF_TALK_FALLBACK_FILE = "self_talk.example.json"
+
+# Set by GitHub Actions; used to keep private content out of public logs.
+IN_CI = _get("GITHUB_ACTIONS").lower() == "true"

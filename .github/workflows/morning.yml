@@ -27,10 +27,13 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           # Empty when the secret is not set -> falls back to deadlines.example.json
           DEADLINES_JSON: ${{ secrets.DEADLINES_JSON }}
+          # Private; empty when unset -> falls back to self_talk.example.json
+          SELF_TALK_JSON: ${{ secrets.SELF_TALK_JSON }}
           LATITUDE: ${{ secrets.LATITUDE || vars.LATITUDE }}
           LONGITUDE: ${{ secrets.LONGITUDE || vars.LONGITUDE }}
           CITY_NAME: ${{ secrets.CITY_NAME || vars.CITY_NAME }}
           TIMEZONE: ${{ secrets.TIMEZONE || vars.TIMEZONE }}
           ENABLE_QURAN: ${{ secrets.ENABLE_QURAN || vars.ENABLE_QURAN }}
+          ENABLE_SELF_TALK: ${{ secrets.ENABLE_SELF_TALK || vars.ENABLE_SELF_TALK }}
           ENABLE_WORD: ${{ secrets.ENABLE_WORD || vars.ENABLE_WORD }}
         run: python main.py

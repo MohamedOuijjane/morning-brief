@@ -5,9 +5,11 @@ Telegram message with:
 
 1. **Verse of the day**: one ayah in Arabic with its Tafsir Al-Muyassar, from
    [alquran.cloud](https://alquran.cloud/api) (free, no API key)
-2. **Today's weather** from [Open-Meteo](https://open-meteo.com/) (free, no API key)
-3. **Upcoming deadlines** due in the next 14 days, read from a JSON file
-4. **Word of the day** in Arabic, French and English, with an example sentence
+2. **Self-talk**: a short personal message and challenge of the day, in Arabic,
+   from your own private list
+3. **Today's weather** from [Open-Meteo](https://open-meteo.com/) (free, no API key)
+4. **Upcoming deadlines** due in the next 14 days, read from a JSON file
+5. **Word of the day** in Arabic, French and English, with an example sentence
 
 Each source is fetched on its own, so if the weather API is down you still
 get the rest of the message. API requests are retried up to 3 times with a
@@ -25,6 +27,11 @@ month names, so no `fr_FR` system locale is needed.
 ﴿ ثُمَّ إِنَّكُمْ يَوْمَ ٱلْقِيَٰمَةِ عِندَ رَبِّكُمْ تَخْتَصِمُونَ ﴾
 سُورَةُ الزُّمَرِ — الآية 31
 التفسير: إنك -أيها الرسول- ميت وإنهم ميتون، ثم إنكم جميعًا- أيها الناس- يوم القيامة عند ربكم تتنازعون، فيحكم بينكم بالعدل والإنصاف.
+
+💬 كلمة لنفسك اليوم
+« خطوة صغيرة تكفي »
+لا تحتاج إلى إنجاز كل شيء اليوم. ابدأ بخطوة صغيرة واحدة، فالخطوات الصغيرة المتكررة تصنع فرقًا كبيرًا مع الوقت.
+🎯 تحدّي اليوم: اختر مهمة واحدة واعمل عليها عشر دقائق دون انقطاع.
 
 🌧 Météo à Paris
 Pluie faible
@@ -49,6 +56,7 @@ Vent : jusqu'à 18,0 km/h
 | File | Purpose |
 | --- | --- |
 | `main.py` | `get_verse()`, `get_weather()`, `get_deadlines()`, `get_word()`, `send()` |
+| `self_talk.example.json` | 3 placeholder self-talk messages |
 | `words.json` | 150 words in Arabic, French and English with example sentences |
 | `config.py` | Reads all settings from environment variables |
 | `deadlines.example.json` | Sample deadlines (fake data) |
@@ -93,6 +101,7 @@ New repository secret** and add:
 | `TELEGRAM_TOKEN` | yes | Bot token from BotFather |
 | `TELEGRAM_CHAT_ID` | yes | Your chat ID |
 | `DEADLINES_JSON` | no | Full content of your deadlines file (see below) |
+| `SELF_TALK_JSON` | no | Full content of your private self-talk file (see below) |
 | `LATITUDE`, `LONGITUDE`, `CITY_NAME`, `TIMEZONE` | no | Your location |
 
 If the location is not set, the script defaults to Paris
@@ -134,7 +143,27 @@ To keep your real deadlines private, put them in `deadlines.json` locally
   freely; each needs `ar`, `fr`, `en`, `ar_example`, `fr_example` and
   `en_example`.
 
-Both sections can be turned off with `ENABLE_QURAN=false` or `ENABLE_WORD=false`
+## Self-talk
+
+Your own messages, kept private. The script looks for them in this order:
+
+1. the `SELF_TALK_JSON` environment variable (a GitHub secret in Actions)
+2. a local `self_talk.json` (ignored by git)
+3. `self_talk.example.json` (3 placeholder messages)
+
+The format is a list of objects with `title`, `body` and `challenge`, as in
+`self_talk.example.json`. One message is picked per day from the date, in the
+configured `TIMEZONE`. To use your own list in Actions:
+
+```bash
+gh secret set SELF_TALK_JSON < self_talk.json
+```
+
+GitHub secrets are limited to 48 KB. The text is never printed in Actions
+logs, not even in dry-run mode.
+
+All three optional sections can be turned off with `ENABLE_QURAN=false`,
+`ENABLE_SELF_TALK=false` or `ENABLE_WORD=false`
 (as a secret or variable in GitHub, or in `.env` locally).
 
 ## Running locally
@@ -166,6 +195,9 @@ python main.py             # send it to Telegram
 | `ENABLE_QURAN` | `true` | Show the verse of the day |
 | `ENABLE_WORD` | `true` | Show the word of the day |
 | `WORDS_FILE` | `words.json` | Word list |
+| `ENABLE_SELF_TALK` | `true` | Show the self-talk message |
+| `SELF_TALK_JSON` | – | Self-talk messages as raw JSON (takes priority) |
+| `SELF_TALK_FILE` | `self_talk.json` | Self-talk file, falls back to the example |
 | `DRY_RUN` | `false` | Print instead of sending |
 
 ## License

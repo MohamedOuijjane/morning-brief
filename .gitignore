@@ -12,3 +12,7 @@ venv/
 *.swp
 *.swo
 *~
+
+# Private self-talk content (never commit)
+self_talk.py
+self_talk.json

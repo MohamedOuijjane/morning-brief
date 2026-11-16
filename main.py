@@ -76,6 +76,7 @@ WEATHER_CODES = {
 # Section names used in the fallback line when a source fails.
 SOURCE_LABELS = {
     "get_verse": "Verset du jour",
+    "get_self_talk": "كلمة لنفسك اليوم",
     "get_weather": "Météo",
     "get_deadlines": "Échéances",
     "get_word": "Mot du jour",
@@ -149,6 +150,33 @@ def get_verse() -> str:
         f"﴿ {_escape(ayah['text'])} ﴾",
         f"{_escape(ayah['surah']['name'])} — الآية {ayah['numberInSurah']}",
         f"<b>التفسير:</b> {_escape(tafsir['text'])}",
+    ])
+
+
+SELF_TALK_HEADER = "💬 <b>كلمة لنفسك اليوم</b>"
+
+
+def _load_self_talk() -> list:
+    if config.SELF_TALK_JSON:
+        return json.loads(config.SELF_TALK_JSON)
+    for name in (config.SELF_TALK_FILE, config.SELF_TALK_FALLBACK_FILE):
+        path = Path(name)
+        if not path.is_absolute():
+            path = BASE_DIR / path
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    raise FileNotFoundError("no self-talk messages found")
+
+
+def get_self_talk() -> str:
+    # Private content: never print or log it (see main()).
+    messages = _load_self_talk()
+    msg = messages[today().toordinal() % len(messages)]
+    return "\n".join([
+        SELF_TALK_HEADER,
+        f"« {_escape(msg['title'])} »",
+        _escape(msg["body"]),
+        f"🎯 <b>تحدّي اليوم:</b> {_escape(msg['challenge'])}",
     ])
 
 
@@ -247,6 +275,8 @@ def enabled_sources() -> list:
     sources = []
     if config.ENABLE_QURAN:
         sources.append(get_verse)
+    if config.ENABLE_SELF_TALK:
+        sources.append(get_self_talk)
     sources += [get_weather, get_deadlines]
     if config.ENABLE_WORD:
         sources.append(get_word)
@@ -316,16 +346,24 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    messages = split_messages(build_sections())
+    sections = build_sections()
     if args.dry_run or config.DRY_RUN:
+        if config.IN_CI:
+            # Actions logs are public: never print the private self-talk text.
+            sections = [
+                f"{SELF_TALK_HEADER}\n[hidden in CI logs]"
+                if s.startswith(SELF_TALK_HEADER) else s
+                for s in sections
+            ]
+        messages = split_messages(sections)
         for i, message in enumerate(messages, 1):
             if len(messages) > 1:
                 print(f"----- message {i}/{len(messages)} ({len(message)} chars) -----")
             print(message)
         return
-    for message in messages:
+    for message in split_messages(sections):
         send(message)
-    print(f"Sent {len(messages)} message(s).")
+    print("Brief sent.")
 
 
 if __name__ == "__main__":
