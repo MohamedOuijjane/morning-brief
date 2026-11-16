@@ -1,12 +1,14 @@
-"""Shared fixtures: no network, no private files, a frozen clock."""
+"""Shared fixtures: no network, no local data files, a frozen clock.
+
+All test data is neutral and defined here or inline in the tests."""
 
 import os
 
 os.environ["BRIEF_NO_DOTENV"] = "1"  # never load a local .env in tests
 
+import json  # noqa: E402
 from collections.abc import Callable, Iterator  # noqa: E402
 from datetime import datetime  # noqa: E402
-from pathlib import Path  # noqa: E402
 from typing import Any  # noqa: E402
 from zoneinfo import ZoneInfo  # noqa: E402
 
@@ -15,12 +17,105 @@ import requests  # noqa: E402
 
 from brief import config, http, utils  # noqa: E402
 
-FIXTURES = Path(__file__).parent / "fixtures"
+SAMPLE_DEADLINES = [
+    {"title": "Past item", "date": "2026-11-15"},
+    {"title": "Item <today>", "date": "2026-11-16"},
+    {"title": "Item tomorrow", "date": "2026-11-17"},
+    {"title": "Item in 4 days", "date": "2026-11-20"},
+    {"title": "Item next week", "date": "2026-11-26"},
+    {"title": "Item in 14 days", "date": "2026-11-30"},
+    {"title": "Item too far", "date": "2026-12-01"},
+]
+
+SAMPLE_DAILY_NOTES = [
+    {"title": f"Sample title {i}", "body": f"Sample text {i}", "challenge": f"Sample task {i}"}
+    for i in range(3)
+]
+
+SAMPLE_CLOSING_NOTES = ["Sample note 0", "Sample note 1", "Sample note 2"]
+
+SAMPLE_WORDS = [
+    {"ar": f"ar-{i}", "fr": f"fr-{i}", "en": f"en-{i}",
+     "ar_example": f"ar example {i}", "fr_example": f"fr example {i}",
+     "en_example": f"en example {i}"}
+    for i in range(5)
+]
+
+# Two calendars. Today is Monday 16 November 2026 (Europe/Paris).
+CALENDAR_A = """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test//A//EN
+BEGIN:VEVENT
+UID:a1@test.invalid
+SUMMARY:Weekly event
+DTSTART;TZID=Europe/Paris:20261005T090000
+DTEND;TZID=Europe/Paris:20261005T100000
+RRULE:FREQ=WEEKLY;BYDAY=MO
+END:VEVENT
+BEGIN:VEVENT
+UID:a2@test.invalid
+SUMMARY:All-day event
+DTSTART;VALUE=DATE:20261116
+DTEND;VALUE=DATE:20261117
+END:VEVENT
+BEGIN:VEVENT
+UID:a3@test.invalid
+SUMMARY:UTC event
+DTSTART:20261116T130000Z
+DTEND:20261116T140000Z
+END:VEVENT
+BEGIN:VEVENT
+UID:a4@test.invalid
+SUMMARY:Tomorrow event
+DTSTART;TZID=Europe/Paris:20261117T100000
+DTEND;TZID=Europe/Paris:20261117T110000
+END:VEVENT
+END:VCALENDAR
+"""
+
+CALENDAR_B = """BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Test//B//EN
+BEGIN:VEVENT
+UID:b1@test.invalid
+SUMMARY:Weekly event
+DTSTART;TZID=Europe/Paris:20261116T090000
+DTEND;TZID=Europe/Paris:20261116T100000
+END:VEVENT
+BEGIN:VEVENT
+UID:b2@test.invalid
+SUMMARY:Multi-day event
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261118
+END:VEVENT
+BEGIN:VEVENT
+UID:b3@test.invalid
+SUMMARY:Daily event
+DTSTART;TZID=Europe/Paris:20261101T183000
+DTEND;TZID=Europe/Paris:20261101T193000
+RRULE:FREQ=DAILY
+EXDATE;TZID=Europe/Paris:20261115T183000
+END:VEVENT
+BEGIN:VEVENT
+UID:b4@test.invalid
+SUMMARY:Overnight event
+DTSTART;TZID=Europe/Paris:20261115T230000
+DTEND;TZID=Europe/Paris:20261116T010000
+END:VEVENT
+BEGIN:VEVENT
+UID:b5@test.invalid
+SUMMARY:Tuesday event
+DTSTART;TZID=Europe/Paris:20261110T070000
+RRULE:FREQ=WEEKLY;BYDAY=TU
+END:VEVENT
+END:VCALENDAR
+"""
 
 
 @pytest.fixture(autouse=True)
-def isolated(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
-    """Block real HTTP and point every data source at fake data only."""
+def isolated(monkeypatch: pytest.MonkeyPatch, tmp_path: Any) -> Iterator[None]:
+    """Block real HTTP; use only the sample data above. Local data files are
+    pointed at an empty temporary folder, so real files are never read."""
 
     def blocked(*args: Any, **kwargs: Any) -> None:
         raise RuntimeError("network access is blocked in tests")
@@ -30,30 +125,25 @@ def isolated(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 
     settings: dict[str, Any] = {
         "TIMEZONE": "Europe/Paris",
-        "CITY_NAME": "Paris",
+        "CITY_NAME": "Sample City",
         "TELEGRAM_TOKEN": "",
         "TELEGRAM_CHAT_ID": "",
         "DEADLINES_DAYS": 14,
-        "DEADLINES_JSON": "",
-        "DEADLINES_FILE": str(FIXTURES / "sample_deadlines.json"),
-        "SELF_TALK_JSON": "",
-        "SELF_TALK_FILE": "self_talk.example.json",
-        "NIGHT_NOTES_JSON": "",
-        "NIGHT_NOTES_FILE": "night_notes.example.json",
-        "WORDS_JSON": "",
-        "WORDS_FILE": "words.example.json",
+        "DEADLINES_JSON": json.dumps(SAMPLE_DEADLINES),
+        "DAILY_NOTE_JSON": json.dumps(SAMPLE_DAILY_NOTES),
+        "CLOSING_NOTE_JSON": json.dumps(SAMPLE_CLOSING_NOTES),
+        "WORDS_JSON": json.dumps(SAMPLE_WORDS),
+        "EVENING_VERSES_JSON": json.dumps(["1:1", "2:2", "3:3"]),
         "GCAL_ICS_URLS": "",
         "GCAL_ICS_URL": "",
-        "ENABLE_QURAN": True,
-        "ENABLE_SELF_TALK": True,
-        "ENABLE_WORD": True,
-        "ENABLE_EVENING": True,
-        "ENABLE_EVENING_VERSE": True,
-        "ENABLE_NIGHT_NOTE": True,
-        "ENABLE_WEEKLY": True,
         "IN_CI": False,
         "DRY_RUN": False,
     }
+    for name in ("DEADLINES", "DAILY_NOTE", "CLOSING_NOTE", "WORDS", "EVENING_VERSES"):
+        settings[f"{name}_FILE"] = str(tmp_path / f"missing_{name.lower()}.json")
+    for flag in ("QURAN", "DAILY_NOTE", "WORD", "EVENING", "EVENING_VERSE",
+                 "CLOSING_NOTE", "WEEKLY"):
+        settings[f"ENABLE_{flag}"] = True
     for name, value in settings.items():
         monkeypatch.setattr(config, name, value)
     yield
@@ -116,5 +206,5 @@ def fake_get(monkeypatch: pytest.MonkeyPatch) -> Callable[[dict[str, Any]], list
     return install
 
 
-def ics_response(name: str) -> FakeResponse:
-    return FakeResponse(content=(FIXTURES / name).read_bytes())
+def ics_response(text: str) -> FakeResponse:
+    return FakeResponse(content=text.encode())

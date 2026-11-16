@@ -59,16 +59,15 @@ def resolve(name: str) -> Path:
     return path if path.is_absolute() else config.ROOT / path
 
 
-def load_json(raw: str, *files: str) -> Any:
-    """Load JSON from raw text (a secret) if set, else from the first existing
-    file. Raises FileNotFoundError if nothing is available."""
+def load_json(raw: str, file: str) -> Any | None:
+    """Load JSON from raw text (a secret) if set, else from a local file.
+    Returns None when neither is available: the section is then skipped."""
     if raw:
         return json.loads(raw)
-    for name in files:
-        path = resolve(name)
-        if path.exists():
-            return json.loads(path.read_text(encoding="utf-8"))
-    raise FileNotFoundError("no data source available")
+    path = resolve(file)
+    if path.exists():
+        return json.loads(path.read_text(encoding="utf-8"))
+    return None
 
 
 def pick_by_date(items: list[Any], day: date) -> Any:

@@ -45,22 +45,15 @@ def test_today_uses_configured_timezone(freeze, monkeypatch) -> None:
 
 def test_load_json_priority(tmp_path) -> None:
     local = tmp_path / "local.json"
-    fallback = tmp_path / "fallback.json"
-    fallback.write_text('["fallback"]')
-    assert utils.load_json("", str(local), str(fallback)) == ["fallback"]
+    assert utils.load_json("", str(local)) is None  # nothing configured
     local.write_text('["local"]')
-    assert utils.load_json("", str(local), str(fallback)) == ["local"]
-    assert utils.load_json('["secret"]', str(local), str(fallback)) == ["secret"]
+    assert utils.load_json("", str(local)) == ["local"]
+    assert utils.load_json('["secret"]', str(local)) == ["secret"]
 
 
-def test_load_json_without_any_source(tmp_path) -> None:
-    with pytest.raises(FileNotFoundError):
-        utils.load_json("", str(tmp_path / "missing.json"))
-
-
-def test_pick_by_date_is_stable_and_cycles() -> None:
+def test_pick_by_date_cycles_through_items() -> None:
     items = ["a", "b", "c"]
-    d = date(2026, 11, 16)
-    assert utils.pick_by_date(items, d) == utils.pick_by_date(items, d)
-    picks = {utils.pick_by_date(items, date.fromordinal(d.toordinal() + i)) for i in range(3)}
-    assert picks == set(items)
+    d = date(2026, 11, 16)  # ordinal 739936, 739936 % 3 == 1
+    assert utils.pick_by_date(items, d) == "b"
+    picks = [utils.pick_by_date(items, date.fromordinal(d.toordinal() + i)) for i in range(3)]
+    assert picks == ["b", "c", "a"]

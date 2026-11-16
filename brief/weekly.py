@@ -55,7 +55,7 @@ def build_weekly_sections() -> list[str]:
             unknown = True
 
     try:
-        due = deadlines.deadlines_between(start, end)
+        due = deadlines.deadlines_between(start, end) or []
         if due:
             n_deadlines = len(due)
             sections.append("\n".join(

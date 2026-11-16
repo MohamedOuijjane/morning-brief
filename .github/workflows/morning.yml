@@ -73,12 +73,12 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          # Empty when the secret is not set -> falls back to deadlines.example.json
           DEADLINES_JSON: ${{ secrets.DEADLINES_JSON }}
-          # Private; empty when unset -> falls back to the *.example.json files
-          SELF_TALK_JSON: ${{ secrets.SELF_TALK_JSON }}
-          NIGHT_NOTES_JSON: ${{ secrets.NIGHT_NOTES_JSON }}
+          # Data comes only from secrets; a section without data is skipped.
+          DAILY_NOTE_JSON: ${{ secrets.DAILY_NOTE_JSON }}
+          CLOSING_NOTE_JSON: ${{ secrets.CLOSING_NOTE_JSON }}
           WORDS_JSON: ${{ secrets.WORDS_JSON }}
+          EVENING_VERSES_JSON: ${{ secrets.EVENING_VERSES_JSON }}
           # Private iCal URLs; empty when unset -> agenda sections are skipped
           GCAL_ICS_URLS: ${{ secrets.GCAL_ICS_URLS }}
           GCAL_ICS_URL: ${{ secrets.GCAL_ICS_URL }}
@@ -87,11 +87,11 @@ jobs:
           CITY_NAME: ${{ secrets.CITY_NAME || vars.CITY_NAME }}
           TIMEZONE: ${{ secrets.TIMEZONE || vars.TIMEZONE }}
           ENABLE_QURAN: ${{ secrets.ENABLE_QURAN || vars.ENABLE_QURAN }}
-          ENABLE_SELF_TALK: ${{ secrets.ENABLE_SELF_TALK || vars.ENABLE_SELF_TALK }}
+          ENABLE_DAILY_NOTE: ${{ vars.ENABLE_DAILY_NOTE }}
           ENABLE_WORD: ${{ secrets.ENABLE_WORD || vars.ENABLE_WORD }}
           ENABLE_EVENING: ${{ secrets.ENABLE_EVENING || vars.ENABLE_EVENING }}
           ENABLE_EVENING_VERSE: ${{ secrets.ENABLE_EVENING_VERSE || vars.ENABLE_EVENING_VERSE }}
-          ENABLE_NIGHT_NOTE: ${{ secrets.ENABLE_NIGHT_NOTE || vars.ENABLE_NIGHT_NOTE }}
+          ENABLE_CLOSING_NOTE: ${{ vars.ENABLE_CLOSING_NOTE }}
           ENABLE_WEEKLY: ${{ secrets.ENABLE_WEEKLY || vars.ENABLE_WEEKLY }}
         run: python main.py ${{ steps.gate.outputs.mode == 'evening' && '--evening' || steps.gate.outputs.mode == 'weekly' && '--weekly' || '' }}
 

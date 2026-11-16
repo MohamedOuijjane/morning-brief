@@ -7,7 +7,7 @@ override them with ``monkeypatch.setattr(config, "NAME", value)``.
 import os
 from pathlib import Path
 
-# Repository root: data files (*.example.json, words.json, ...) live here.
+# Repository root: local data files (git-ignored) are looked up here.
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -41,10 +41,6 @@ CITY_NAME = _get("CITY_NAME", "Paris")
 TIMEZONE = _get("TIMEZONE", "Europe/Paris")
 
 DEADLINES_DAYS = int(_get("DEADLINES_DAYS", "14"))
-# Raw JSON content takes priority over the file path (used by the workflow).
-DEADLINES_JSON = _get("DEADLINES_JSON")
-DEADLINES_FILE = _get("DEADLINES_FILE", "deadlines.json")
-DEADLINES_FALLBACK_FILE = "deadlines.example.json"
 
 
 def _flag(name: str, default: str) -> bool:
@@ -53,42 +49,33 @@ def _flag(name: str, default: str) -> bool:
 
 DRY_RUN = _flag("DRY_RUN", "false")
 
-# Optional sections
-ENABLE_QURAN = _flag("ENABLE_QURAN", "true")
-ENABLE_WORD = _flag("ENABLE_WORD", "true")
-# The word list is private: raw JSON from a secret, else the local
-# (git-ignored) file, else the committed example.
+# Data sources. Each one is read from raw JSON in an environment variable
+# (a GitHub secret in Actions), else from a local git-ignored file. When
+# neither exists, the section that needs it is skipped.
+DEADLINES_JSON = _get("DEADLINES_JSON")
+DEADLINES_FILE = _get("DEADLINES_FILE", "deadlines.json")
 WORDS_JSON = _get("WORDS_JSON")
 WORDS_FILE = _get("WORDS_FILE", "words.json")
-WORDS_FALLBACK_FILE = "words.example.json"
-
-# Self-talk messages are private: raw JSON from a secret, else the local
-# (git-ignored) file, else the committed placeholder example.
-ENABLE_SELF_TALK = _flag("ENABLE_SELF_TALK", "true")
-SELF_TALK_JSON = _get("SELF_TALK_JSON")
-SELF_TALK_FILE = _get("SELF_TALK_FILE", "self_talk.json")
-SELF_TALK_FALLBACK_FILE = "self_talk.example.json"
-
-# Evening message (python main.py --evening)
-ENABLE_EVENING = _flag("ENABLE_EVENING", "true")
-ENABLE_EVENING_VERSE = _flag("ENABLE_EVENING_VERSE", "true")
-EVENING_VERSES_FILE = "evening_verses.json"
-
-# Weekly summary (python main.py --weekly), sent on Sundays
-ENABLE_WEEKLY = _flag("ENABLE_WEEKLY", "true")
-
-# Bedtime notes are private, like self-talk: secret, else local file, else
-# the committed placeholder example.
-ENABLE_NIGHT_NOTE = _flag("ENABLE_NIGHT_NOTE", "true")
-NIGHT_NOTES_JSON = _get("NIGHT_NOTES_JSON")
-NIGHT_NOTES_FILE = _get("NIGHT_NOTES_FILE", "night_notes.json")
-NIGHT_NOTES_FALLBACK_FILE = "night_notes.example.json"
+DAILY_NOTE_JSON = _get("DAILY_NOTE_JSON")
+DAILY_NOTE_FILE = _get("DAILY_NOTE_FILE", "daily_note.json")
+CLOSING_NOTE_JSON = _get("CLOSING_NOTE_JSON")
+CLOSING_NOTE_FILE = _get("CLOSING_NOTE_FILE", "closing_note.json")
+EVENING_VERSES_JSON = _get("EVENING_VERSES_JSON")
+EVENING_VERSES_FILE = _get("EVENING_VERSES_FILE", "evening_verses.json")
 
 # Secret iCal URLs: GCAL_ICS_URLS holds one per line (blank lines and lines
 # starting with # are ignored); GCAL_ICS_URL is accepted as one more URL.
-# If neither is set, the agenda section is skipped.
 GCAL_ICS_URLS = os.environ.get("GCAL_ICS_URLS", "")
 GCAL_ICS_URL = _get("GCAL_ICS_URL")
+
+# Section toggles
+ENABLE_QURAN = _flag("ENABLE_QURAN", "true")
+ENABLE_DAILY_NOTE = _flag("ENABLE_DAILY_NOTE", "true")
+ENABLE_WORD = _flag("ENABLE_WORD", "true")
+ENABLE_EVENING = _flag("ENABLE_EVENING", "true")
+ENABLE_EVENING_VERSE = _flag("ENABLE_EVENING_VERSE", "true")
+ENABLE_CLOSING_NOTE = _flag("ENABLE_CLOSING_NOTE", "true")
+ENABLE_WEEKLY = _flag("ENABLE_WEEKLY", "true")
 
 # Set by GitHub Actions; used to keep private content out of public logs.
 IN_CI = _get("GITHUB_ACTIONS").lower() == "true"

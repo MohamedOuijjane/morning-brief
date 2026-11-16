@@ -2,7 +2,6 @@
 
 Text and tafsir are shown exactly as returned by the API."""
 
-import json
 from typing import Any
 
 from brief import config, utils
@@ -49,8 +48,12 @@ def get_verse() -> str:
     raise RuntimeError("no short enough ayah found")
 
 
-def get_evening_verse() -> str:
-    refs = json.loads(utils.resolve(config.EVENING_VERSES_FILE).read_text(encoding="utf-8"))
+def get_evening_verse() -> str | None:
+    """Verse picked by date from a list of "surah:ayah" references
+    (EVENING_VERSES_JSON or a local file). Skipped when not configured."""
+    refs = utils.load_json(config.EVENING_VERSES_JSON, config.EVENING_VERSES_FILE)
+    if not refs:
+        return None
     ref = utils.pick_by_date(refs, utils.today())
     ayah, tafsir = fetch_ayah(ref, label="get_evening_verse")
     return render_ayah(EVENING_VERSE_HEADER, ayah, tafsir)

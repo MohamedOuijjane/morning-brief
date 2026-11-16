@@ -3,7 +3,7 @@
 import sys
 from collections.abc import Callable
 
-from brief import calendar, config, deadlines, personal, quran, utils, weather, weekly, word
+from brief import calendar, config, deadlines, notes, quran, utils, weather, weekly, word
 
 # A source returns a section, or None when it is not configured / not needed.
 Source = Callable[[], str | None]
@@ -11,7 +11,7 @@ Source = Callable[[], str | None]
 # Names used in the fallback line when a source fails.
 SOURCE_LABELS: dict[str, str] = {
     "get_verse": "Verset du jour",
-    "get_self_talk": "كلمة لنفسك اليوم",
+    "get_daily_note": "كلمة لنفسك اليوم",
     "get_weather": "Météo",
     "get_calendar": "Agenda du jour",
     "get_deadlines": "Échéances",
@@ -20,7 +20,7 @@ SOURCE_LABELS: dict[str, str] = {
     "get_evening_verse": "آية المساء",
     "get_tomorrow_calendar": "Agenda de demain",
     "get_tomorrow_deadlines": "À rendre demain",
-    "get_night_note": "قبل النوم",
+    "get_closing_note": "قبل النوم",
 }
 
 
@@ -28,8 +28,8 @@ def morning_sources() -> list[Source]:
     sources: list[Source] = []
     if config.ENABLE_QURAN:
         sources.append(quran.get_verse)
-    if config.ENABLE_SELF_TALK:
-        sources.append(personal.get_self_talk)
+    if config.ENABLE_DAILY_NOTE:
+        sources.append(notes.get_daily_note)
     sources += [weather.get_weather, calendar.get_calendar, deadlines.get_deadlines]
     if config.ENABLE_WORD:
         sources.append(word.get_word)
@@ -38,13 +38,13 @@ def morning_sources() -> list[Source]:
 
 def evening_sources() -> list[Source]:
     sources: list[Source] = []
-    if config.ENABLE_SELF_TALK:
-        sources.append(personal.get_challenge_reminder)
+    if config.ENABLE_DAILY_NOTE:
+        sources.append(notes.get_challenge_reminder)
     if config.ENABLE_EVENING_VERSE:
         sources.append(quran.get_evening_verse)
     sources += [calendar.get_tomorrow_calendar, deadlines.get_tomorrow_deadlines]
-    if config.ENABLE_NIGHT_NOTE:
-        sources.append(personal.get_night_note)  # always the last line
+    if config.ENABLE_CLOSING_NOTE:
+        sources.append(notes.get_closing_note)  # always the last line
     return sources
 
 
@@ -80,12 +80,12 @@ def build_weekly_sections() -> list[str]:
 def redact(section: str) -> str:
     """Hide private content for public CI logs; keep only headers."""
     # Private text on the header line itself: keep the prefix only.
-    for prefix in (personal.CHALLENGE_HEADER, personal.NIGHT_NOTE_HEADER):
+    for prefix in (notes.CHALLENGE_HEADER, notes.CLOSING_NOTE_HEADER):
         if section.startswith(prefix):
             return f"{prefix} [hidden in CI logs]"
     # Header line is not private (title or date): keep it, hide the rest.
     for prefix in (
-        personal.SELF_TALK_HEADER,
+        notes.DAILY_NOTE_HEADER,
         word.WORD_HEADER,
         calendar.CALENDAR_PREFIX,  # every 📆 calendar section
         deadlines.DEADLINES_HEADER_PREFIX,

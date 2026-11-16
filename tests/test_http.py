@@ -6,7 +6,7 @@ import requests
 from brief import config, http, telegram, weather
 from tests.conftest import FakeResponse
 
-URL = "https://api.example.invalid/data"
+URL = "https://api.test.invalid/data"
 
 
 def test_retries_timeouts_then_succeeds(fake_get, capsys) -> None:
@@ -14,7 +14,7 @@ def test_retries_timeouts_then_succeeds(fake_get, capsys) -> None:
     assert http.get_json(URL, label="demo") == {"ok": 1}
     assert len(calls) == 3
     log = capsys.readouterr().err
-    assert "demo attempt 1 failed: Timeout" in log and "example.invalid" not in log
+    assert "demo attempt 1 failed: Timeout" in log and "test.invalid" not in log
 
 
 def test_gives_up_after_three_attempts(fake_get) -> None:
@@ -46,7 +46,7 @@ def test_weather_in_french(fake_get) -> None:
     }
     fake_get({weather.FORECAST_API: FakeResponse(data=data)})
     assert weather.get_weather().splitlines() == [
-        "🌧 <b>Météo à Paris</b>",
+        "🌧 <b>Météo à Sample City</b>",
         "Pluie faible",
         "Actuellement : 10,9 °C",
         "Min / Max : 6,2 °C / 11,4 °C",

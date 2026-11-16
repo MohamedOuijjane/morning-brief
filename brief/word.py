@@ -1,15 +1,14 @@
-"""Word of the day in Arabic, French and English.
-
-The word list is private, like self-talk: WORDS_JSON (secret), else a
-git-ignored local words.json, else the committed words.example.json."""
+"""Word of the day in three languages, from WORDS_JSON or a local file."""
 
 from brief import config, utils
 
 WORD_HEADER = "💬 <b>Mot du jour</b>"
 
 
-def get_word() -> str:
-    words = utils.load_json(config.WORDS_JSON, config.WORDS_FILE, config.WORDS_FALLBACK_FILE)
+def get_word() -> str | None:
+    words = utils.load_json(config.WORDS_JSON, config.WORDS_FILE)
+    if not words:
+        return None  # no word list configured
     word = words[utils.today().timetuple().tm_yday % len(words)]
     e = utils.escape
     return "\n".join([

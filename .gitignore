@@ -1,31 +1,18 @@
-# Secrets and personal data
+# Local data and secrets: the repository contains no data files
 .env
-deadlines.json
+*.json
+*.txt
+!requirements*.txt
 
 # Python
 __pycache__/
 *.pyc
 .venv/
 venv/
+.pytest_cache/
+.ruff_cache/
 
-# Editor swap/backup files
+# Editor files
 *.swp
 *.swo
 *~
-
-# Private self-talk content (never commit)
-self_talk.py
-self_talk.json
-
-# Secret calendar URLs (never commit)
-gcal_urls.txt
-
-# Private bedtime notes (never commit)
-night_notes.json
-
-# Private word list (never commit)
-words.json
-
-# Tool caches
-.pytest_cache/
-.ruff_cache/
