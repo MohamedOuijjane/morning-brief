@@ -8,8 +8,10 @@ Telegram message with:
 2. **Self-talk**: a short personal message and challenge of the day, in Arabic,
    from your own private list
 3. **Today's weather** from [Open-Meteo](https://open-meteo.com/) (free, no API key)
-4. **Upcoming deadlines** due in the next 14 days, read from a JSON file
-5. **Word of the day** in Arabic, French and English, with an example sentence
+4. **Agenda du jour**: today's events from one or more Google Calendars (or any
+   iCal feed), recurring events included
+5. **Upcoming deadlines** due in the next 14 days, read from a JSON file
+6. **Word of the day** in Arabic, French and English, with an example sentence
 
 Each source is fetched on its own, so if the weather API is down you still
 get the rest of the message. API requests are retried up to 3 times with a
@@ -39,6 +41,11 @@ Actuellement : 10,8 °C
 Min / Max : 10,4 °C / 13,8 °C
 Risque de pluie : 100 %
 Vent : jusqu'à 18,0 km/h
+
+📆 Agenda du jour
+Toute la journée  Journée portes ouvertes
+09:00  Cours de mathématiques
+14:00  Réunion projet
 
 📅 Échéances (14 prochains jours)
 🔴 Submit sample project report : mar. 17 nov. (demain)
@@ -102,6 +109,8 @@ New repository secret** and add:
 | `TELEGRAM_CHAT_ID` | yes | Your chat ID |
 | `DEADLINES_JSON` | no | Full content of your deadlines file (see below) |
 | `SELF_TALK_JSON` | no | Full content of your private self-talk file (see below) |
+| `GCAL_ICS_URLS` | no | Secret iCal URLs, one per line (see below) |
+| `GCAL_ICS_URL` | no | One more secret iCal URL |
 | `LATITUDE`, `LONGITUDE`, `CITY_NAME`, `TIMEZONE` | no | Your location |
 
 If the location is not set, the script defaults to Paris
@@ -143,6 +152,28 @@ To keep your real deadlines private, put them in `deadlines.json` locally
   freely; each needs `ar`, `fr`, `en`, `ar_example`, `fr_example` and
   `en_example`.
 
+## Agenda
+
+Lists today's events from one or more calendars, merged and sorted by time
+(all-day events first, events that started yesterday as "En cours"). Recurring
+events are expanded, and the same event found in two calendars (same title and
+start) is shown once. If no calendar URL is set, the section is skipped.
+
+1. In Google Calendar, open **Settings → (your calendar) → Integrate calendar**
+   and copy the **Secret address in iCal format**. Anyone with this URL can
+   read your calendar, so treat it like a password.
+2. Put one URL per line in `gcal_urls.txt` (ignored by git). Blank lines and
+   lines starting with `#` are ignored.
+3. Store it as a secret:
+
+   ```bash
+   gh secret set GCAL_ICS_URLS < gcal_urls.txt
+   ```
+
+A single URL can also be stored as `GCAL_ICS_URL`. If one calendar fails, the
+others are still shown and the log says only `calendar N failed: <ErrorType>`.
+URLs and event titles are never logged.
+
 ## Self-talk
 
 Your own messages, kept private. The script looks for them in this order:
@@ -160,7 +191,7 @@ gh secret set SELF_TALK_JSON < self_talk.json
 ```
 
 GitHub secrets are limited to 48 KB. The text is never printed in Actions
-logs, not even in dry-run mode.
+logs, not even in dry-run mode (the same applies to calendar events).
 
 All three optional sections can be turned off with `ENABLE_QURAN=false`,
 `ENABLE_SELF_TALK=false` or `ENABLE_WORD=false`
@@ -177,6 +208,9 @@ cp .env.example .env                       # then fill in your values
 cp deadlines.example.json deadlines.json   # then add your real deadlines
 
 python main.py --dry-run   # print the message instead of sending it
+
+# with your calendars (multi-line values do not fit in .env)
+GCAL_ICS_URLS="$(cat gcal_urls.txt)" python main.py --dry-run
 python main.py             # send it to Telegram
 ```
 
@@ -196,6 +230,8 @@ python main.py             # send it to Telegram
 | `ENABLE_WORD` | `true` | Show the word of the day |
 | `WORDS_FILE` | `words.json` | Word list |
 | `ENABLE_SELF_TALK` | `true` | Show the self-talk message |
+| `GCAL_ICS_URLS` | – | Secret iCal URLs, one per line |
+| `GCAL_ICS_URL` | – | One more secret iCal URL |
 | `SELF_TALK_JSON` | – | Self-talk messages as raw JSON (takes priority) |
 | `SELF_TALK_FILE` | `self_talk.json` | Self-talk file, falls back to the example |
 | `DRY_RUN` | `false` | Print instead of sending |

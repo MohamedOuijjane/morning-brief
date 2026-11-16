@@ -56,5 +56,11 @@ SELF_TALK_JSON = _get("SELF_TALK_JSON")
 SELF_TALK_FILE = _get("SELF_TALK_FILE", "self_talk.json")
 SELF_TALK_FALLBACK_FILE = "self_talk.example.json"
 
+# Secret iCal URLs: GCAL_ICS_URLS holds one per line (blank lines and lines
+# starting with # are ignored); GCAL_ICS_URL is accepted as one more URL.
+# If neither is set, the agenda section is skipped.
+GCAL_ICS_URLS = os.environ.get("GCAL_ICS_URLS", "")
+GCAL_ICS_URL = _get("GCAL_ICS_URL")
+
 # Set by GitHub Actions; used to keep private content out of public logs.
 IN_CI = _get("GITHUB_ACTIONS").lower() == "true"

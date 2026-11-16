@@ -16,3 +16,6 @@ venv/
 # Private self-talk content (never commit)
 self_talk.py
 self_talk.json
+
+# Secret calendar URLs (never commit)
+gcal_urls.txt

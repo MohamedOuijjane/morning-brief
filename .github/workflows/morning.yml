@@ -29,6 +29,9 @@ jobs:
           DEADLINES_JSON: ${{ secrets.DEADLINES_JSON }}
           # Private; empty when unset -> falls back to self_talk.example.json
           SELF_TALK_JSON: ${{ secrets.SELF_TALK_JSON }}
+          # Private iCal URLs; empty when unset -> agenda section is skipped
+          GCAL_ICS_URLS: ${{ secrets.GCAL_ICS_URLS }}
+          GCAL_ICS_URL: ${{ secrets.GCAL_ICS_URL }}
           LATITUDE: ${{ secrets.LATITUDE || vars.LATITUDE }}
           LONGITUDE: ${{ secrets.LONGITUDE || vars.LONGITUDE }}
           CITY_NAME: ${{ secrets.CITY_NAME || vars.CITY_NAME }}

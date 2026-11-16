@@ -1,4 +1,5 @@
-"""Morning brief: verse, weather, deadlines and word of the day, sent to Telegram.
+"""Morning brief: verse, self-talk, weather, agenda, deadlines and word of the
+day, sent to Telegram.
 
 The message itself is in French; dates are formatted with hardcoded name
 lists so the output does not depend on the system locale.
@@ -8,10 +9,13 @@ import argparse
 import json
 import sys
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from datetime import time as dt_time
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import icalendar
+import recurring_ical_events
 import requests
 
 import config
@@ -78,6 +82,7 @@ SOURCE_LABELS = {
     "get_verse": "Verset du jour",
     "get_self_talk": "كلمة لنفسك اليوم",
     "get_weather": "Météo",
+    "get_calendar": "Agenda du jour",
     "get_deadlines": "Échéances",
     "get_word": "Mot du jour",
 }
@@ -103,7 +108,12 @@ def _fr_number(value) -> str:
 
 
 def _get_json(url: str, params: dict | None = None, label: str = "request") -> dict:
-    """GET a JSON API, retrying on timeouts, connection errors, 429 and 5xx."""
+    return _http_get(url, params=params, label=label).json()
+
+
+def _http_get(url: str, params: dict | None = None, label: str = "request"):
+    """GET with retries on timeouts, connection errors, 429 and 5xx.
+    Logs only the label and error type, never the URL."""
     delay = HTTP_BACKOFF
     for attempt in range(1, HTTP_ATTEMPTS + 1):
         try:
@@ -123,7 +133,7 @@ def _get_json(url: str, params: dict | None = None, label: str = "request") -> d
             time.sleep(delay)
             delay *= 2
     resp.raise_for_status()  # other 4xx (e.g. bad parameters): no retry
-    return resp.json()
+    return resp
 
 
 def _fetch_ayah(number: int) -> tuple[dict, dict]:
@@ -228,6 +238,80 @@ def get_weather() -> str:
     return "\n".join(lines)
 
 
+CALENDAR_HEADER = "📆 <b>Agenda du jour</b>"
+
+
+def _calendar_urls() -> list[str]:
+    """Secret iCal URLs: one per line in GCAL_ICS_URLS, plus GCAL_ICS_URL."""
+    urls = []
+    for line in config.GCAL_ICS_URLS.splitlines() + [config.GCAL_ICS_URL]:
+        line = line.strip()
+        if line and not line.startswith("#"):
+            if line.startswith("webcal://"):
+                line = "https://" + line[len("webcal://"):]
+            if line not in urls:
+                urls.append(line)
+    return urls
+
+
+def _calendar_events(url: str, label: str, day: date, tz: ZoneInfo) -> list:
+    """Return (sort_key, time_label, title) for every event occurring on `day`."""
+    cal = icalendar.Calendar.from_ical(_http_get(url, label=label).content)
+    start = datetime.combine(day, dt_time.min, tz)
+    end = start + timedelta(days=1)
+    events = []
+    for event in recurring_ical_events.of(cal).between(start, end):
+        title = str(event.get("SUMMARY", "")).strip() or "(sans titre)"
+        begin = event.get("DTSTART").dt
+        if isinstance(begin, datetime):
+            if begin.tzinfo is None:  # floating time: treat as local time
+                begin = begin.replace(tzinfo=tz)
+            begin = begin.astimezone(tz)
+            if begin.date() < day:  # started before today, still running
+                events.append(((1, "00:00"), "En cours", title))
+            else:
+                hhmm = begin.strftime("%H:%M")
+                events.append(((1, hhmm), hhmm, title))
+        else:  # date only: all-day event
+            events.append(((0, ""), "Toute la journée", title))
+    return events
+
+
+def get_calendar() -> str | None:
+    urls = _calendar_urls()
+    if not urls:
+        return None  # not configured: skip the section silently
+
+    tz = ZoneInfo(config.TIMEZONE)
+    day = today()
+    events, seen, failed = [], set(), 0
+    for n, url in enumerate(urls, 1):
+        label = f"calendar {n}"
+        try:
+            found = _calendar_events(url, label, day, tz)
+        except Exception as exc:
+            # Never log the URL or event titles: only the exception type.
+            print(f"[warn] {label} failed: {type(exc).__name__}", file=sys.stderr)
+            failed += 1
+            continue
+        for key, when, title in found:
+            if (title, when) not in seen:  # same title and start = duplicate
+                seen.add((title, when))
+                events.append((key, title.casefold(), when, title))
+    if failed == len(urls):
+        raise RuntimeError("all calendars failed")
+
+    events.sort()
+    lines = [CALENDAR_HEADER]
+    if not events:
+        lines.append("Aucun événement aujourd'hui.")
+    for _, _, when, title in events:
+        lines.append(f"{when}  {_escape(title)}")
+    if failed:
+        lines.append(f"⚠️ {failed} agenda(s) indisponible(s).")
+    return "\n".join(lines)
+
+
 def _load_deadlines() -> list:
     if config.DEADLINES_JSON:
         return json.loads(config.DEADLINES_JSON)
@@ -277,7 +361,7 @@ def enabled_sources() -> list:
         sources.append(get_verse)
     if config.ENABLE_SELF_TALK:
         sources.append(get_self_talk)
-    sources += [get_weather, get_deadlines]
+    sources += [get_weather, get_calendar, get_deadlines]
     if config.ENABLE_WORD:
         sources.append(get_word)
     return sources
@@ -287,7 +371,9 @@ def build_sections() -> list[str]:
     sections = [f"🌅 <b>Bonjour !</b> {format_long_date(today())}"]
     for source in enabled_sources():
         try:
-            sections.append(source())
+            section = source()
+            if section is not None:  # None = section not configured
+                sections.append(section)
         except Exception as exc:  # one failing source must not block the rest
             # Log only the error type/status: messages may contain URLs with
             # location or tokens, and Actions logs are public on public repos.
@@ -349,10 +435,12 @@ def main() -> None:
     sections = build_sections()
     if args.dry_run or config.DRY_RUN:
         if config.IN_CI:
-            # Actions logs are public: never print the private self-talk text.
+            # Actions logs are public: never print private sections
+            # (self-talk text, calendar event titles).
+            private = (SELF_TALK_HEADER, CALENDAR_HEADER)
             sections = [
-                f"{SELF_TALK_HEADER}\n[hidden in CI logs]"
-                if s.startswith(SELF_TALK_HEADER) else s
+                f"{s.splitlines()[0]}\n[hidden in CI logs]"
+                if s.startswith(private) else s
                 for s in sections
             ]
         messages = split_messages(sections)
