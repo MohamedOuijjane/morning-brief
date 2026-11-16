@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 6 * * *"  # 06:00 UTC every day
   workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: "Fail on purpose to test the failure alert (no brief is sent)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -11,7 +16,14 @@ permissions:
 jobs:
   brief:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
+      - name: Simulate failure
+        if: ${{ inputs.simulate_failure }}
+        run: |
+          echo "Failing on purpose to test the alert."
+          exit 1
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -40,3 +52,42 @@ jobs:
           ENABLE_SELF_TALK: ${{ secrets.ENABLE_SELF_TALK || vars.ENABLE_SELF_TALK }}
           ENABLE_WORD: ${{ secrets.ENABLE_WORD || vars.ENABLE_WORD }}
         run: python main.py
+
+  # Sends a short fixed alert if the brief job fails. No secret or private
+  # content is included, and the Telegram API response is discarded.
+  alert-on-failure:
+    needs: brief
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Send failure alert
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+            "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=⚠️ Morning brief a échoué
+          ${RUN_URL}")
+          echo "Telegram API status: ${status}"
+          test "${status}" = "200"
+
+  # GitHub disables scheduled workflows after 60 days without repository
+  # activity. Re-enabling the workflow through the API resets that timer,
+  # without any commit.
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Keep the schedule alive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT --silent \
+            "repos/${{ github.repository }}/actions/workflows/morning.yml/enable"
+          echo "Workflow re-enabled; inactivity timer reset."

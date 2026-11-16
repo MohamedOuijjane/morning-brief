@@ -127,6 +127,23 @@ Go to **Actions → Morning brief → Run workflow**. You should receive the
 message within a minute. After that it runs automatically every day at
 06:00 UTC (edit the `cron` line in `.github/workflows/morning.yml` to change it).
 
+## Reliability
+
+- **Keepalive**: GitHub disables scheduled workflows after 60 days without
+  repository activity. A `keepalive` job re-enables the workflow through the
+  API on every run, which resets that timer without any commit.
+- **Failure alert**: if the brief job fails, an `alert-on-failure` job sends a
+  short Telegram message, "⚠️ Morning brief a échoué", with a link to the run.
+  It contains no secret or private content. A section that fails on its own
+  (for example the weather API) does not fail the job: it shows a short
+  "indisponible" line in the brief instead.
+- To test the alert, run the workflow manually with **simulate_failure**
+  checked, or from the terminal:
+
+  ```bash
+  gh workflow run morning.yml -f simulate_failure=true
+  ```
+
 ## Deadlines format
 
 ```json
