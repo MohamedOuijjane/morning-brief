@@ -21,7 +21,8 @@ def _env(name: str, default: str = "") -> str:
 
 
 def scheduled_utc(cron: str, now: datetime) -> datetime:
-    """Most recent UTC time matching a daily cron like '0 20 * * *'.
+    """Most recent UTC time matching the cron's minute and hour fields
+    (e.g. '0 20 * * *', or '0 19 * * 0' for a weekly slot).
 
     Using the scheduled time instead of the actual start time keeps the check
     correct when GitHub starts a run late."""
@@ -33,10 +34,19 @@ def scheduled_utc(cron: str, now: datetime) -> datetime:
 
 
 def decide(event: str, cron: str, mode_input: str, tz_name: str,
-           morning_hour: int, evening_hour: int, now: datetime) -> tuple[bool, str]:
+           morning_hour: int, evening_hour: int, now: datetime,
+           weekly_hour: int = 20) -> tuple[bool, str]:
     if event != "schedule":
-        return True, mode_input if mode_input in ("morning", "evening") else "morning"
-    local_hour = scheduled_utc(cron, now).astimezone(ZoneInfo(tz_name)).hour
+        modes = ("morning", "evening", "weekly")
+        return True, mode_input if mode_input in modes else "morning"
+    local = scheduled_utc(cron, now).astimezone(ZoneInfo(tz_name))
+    local_hour = local.hour
+    if cron.split()[4] != "*":
+        # Weekly slots (cron with a day of week) only ever send the weekly
+        # summary, on Sunday at the target local hour.
+        if local.weekday() == 6 and local_hour == weekly_hour:
+            return True, "weekly"
+        return False, ""
     if local_hour == morning_hour:
         return True, "morning"
     if local_hour == evening_hour:
@@ -53,6 +63,7 @@ def main() -> None:
         morning_hour=int(_env("MORNING_HOUR", "7")),
         evening_hour=int(_env("EVENING_HOUR", "21")),
         now=datetime.now(timezone.utc),
+        weekly_hour=int(_env("WEEKLY_HOUR", "20")),
     )
     print(f"Sending the {mode} message." if send
           else "Not the target local hour for this slot: skipping.")

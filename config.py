@@ -61,6 +61,9 @@ ENABLE_EVENING = _flag("ENABLE_EVENING", "true")
 ENABLE_EVENING_VERSE = _flag("ENABLE_EVENING_VERSE", "true")
 EVENING_VERSES_FILE = "evening_verses.json"
 
+# Weekly summary (python main.py --weekly), sent on Sundays
+ENABLE_WEEKLY = _flag("ENABLE_WEEKLY", "true")
+
 # Bedtime notes are private, like self-talk: secret, else local file, else
 # the committed placeholder example.
 ENABLE_NIGHT_NOTE = _flag("ENABLE_NIGHT_NOTE", "true")

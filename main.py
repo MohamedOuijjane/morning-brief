@@ -4,6 +4,7 @@
                                # deadlines, word of the day
     python main.py --evening   # evening: challenge reminder, verse, tomorrow's
                                # agenda and deadlines, bedtime note
+    python main.py --weekly    # Sunday: events and deadlines of the coming week
 
 The message itself is in French; dates are formatted with hardcoded name
 lists so the output does not depend on the system locale.
@@ -311,9 +312,38 @@ def _calendar_urls() -> list[str]:
     return urls
 
 
-def _calendar_events(url: str, label: str, day: date, tz: ZoneInfo) -> list:
+def _fetch_calendars() -> tuple[list, int]:
+    """Download and parse every configured calendar once.
+    Returns (calendars, number_failed). A failed calendar is logged with its
+    index and exception type only, never its URL or contents."""
+    calendars, failed = [], 0
+    for n, url in enumerate(_calendar_urls(), 1):
+        label = f"calendar {n}"
+        try:
+            calendars.append(
+                icalendar.Calendar.from_ical(_http_get(url, label=label).content)
+            )
+        except Exception as exc:
+            print(f"[warn] {label} failed: {type(exc).__name__}", file=sys.stderr)
+            failed += 1
+    return calendars, failed
+
+
+def _merged_events(calendars: list, day: date, tz: ZoneInfo) -> list:
+    """Events of all calendars on `day`: sorted (all-day first, then by time),
+    duplicates (same title and start) removed. Returns (time_label, title)."""
+    events, seen = [], set()
+    for cal in calendars:
+        for key, when, title in _calendar_events(cal, day, tz):
+            if (title, when) not in seen:
+                seen.add((title, when))
+                events.append((key, title.casefold(), when, title))
+    events.sort()
+    return [(when, title) for _, _, when, title in events]
+
+
+def _calendar_events(cal, day: date, tz: ZoneInfo) -> list:
     """Return (sort_key, time_label, title) for every event occurring on `day`."""
-    cal = icalendar.Calendar.from_ical(_http_get(url, label=label).content)
     start = datetime.combine(day, dt_time.min, tz)
     end = start + timedelta(days=1)
     events = []
@@ -324,7 +354,7 @@ def _calendar_events(url: str, label: str, day: date, tz: ZoneInfo) -> list:
             if begin.tzinfo is None:  # floating time: treat as local time
                 begin = begin.replace(tzinfo=tz)
             begin = begin.astimezone(tz)
-            if begin.date() < day:  # started before today, still running
+            if begin.date() < day:  # started before that day, still running
                 events.append(((1, "00:00"), "En cours", title))
             else:
                 hhmm = begin.strftime("%H:%M")
@@ -348,33 +378,18 @@ def get_tomorrow_calendar() -> str | None:
 
 
 def _agenda(day: date, header: str, empty_text: str) -> str | None:
-    urls = _calendar_urls()
-    if not urls:
+    if not _calendar_urls():
         return None  # not configured: skip the section silently
 
-    tz = ZoneInfo(config.TIMEZONE)
-    events, seen, failed = [], set(), 0
-    for n, url in enumerate(urls, 1):
-        label = f"calendar {n}"
-        try:
-            found = _calendar_events(url, label, day, tz)
-        except Exception as exc:
-            # Never log the URL or event titles: only the exception type.
-            print(f"[warn] {label} failed: {type(exc).__name__}", file=sys.stderr)
-            failed += 1
-            continue
-        for key, when, title in found:
-            if (title, when) not in seen:  # same title and start = duplicate
-                seen.add((title, when))
-                events.append((key, title.casefold(), when, title))
-    if failed == len(urls):
+    calendars, failed = _fetch_calendars()
+    if not calendars:
         raise RuntimeError("all calendars failed")
 
-    events.sort()
+    events = _merged_events(calendars, day, ZoneInfo(config.TIMEZONE))
     lines = [header]
     if not events:
         lines.append(empty_text)
-    for _, _, when, title in events:
+    for when, title in events:
         lines.append(f"{when}  {_escape(title)}")
     if failed:
         lines.append(f"⚠️ {failed} agenda(s) indisponible(s).")
@@ -437,6 +452,74 @@ def get_tomorrow_deadlines() -> str | None:
     return "\n".join([TOMORROW_DEADLINES_HEADER] + [f"• {_escape(t)}" for t in titles])
 
 
+WEEKLY_DAY_PREFIX = "📆 <b>"  # e.g. "📆 <b>Lundi 23</b>"
+WEEKLY_DEADLINES_HEADER = "⏰ <b>Échéances de la semaine</b>"
+
+
+def _plural(n: int, word: str) -> str:
+    return f"{n} {word}{'s' if n > 1 else ''}"
+
+
+def build_weekly_sections() -> list[str]:
+    """Summary of the coming Monday-Sunday: events grouped by day, deadlines
+    of the week and a count line. Each part fails independently."""
+    start = today() + timedelta(days=7 - today().weekday())  # next Monday
+    end = start + timedelta(days=6)
+    sections = [
+        f"🗓 <b>Semaine du {format_long_date(start).rsplit(' ', 1)[0]}"
+        f" au {format_long_date(end).rsplit(' ', 1)[0]}</b>"
+    ]
+    n_events = n_deadlines = 0
+    unknown = False  # a part failed, so the week may not actually be free
+
+    if _calendar_urls():
+        try:
+            calendars, failed = _fetch_calendars()
+            if not calendars:
+                raise RuntimeError("all calendars failed")
+            tz = ZoneInfo(config.TIMEZONE)
+            for offset in range(7):
+                day = start + timedelta(days=offset)
+                events = _merged_events(calendars, day, tz)
+                if not events:
+                    continue  # skip days without events
+                n_events += len(events)
+                lines = [f"{WEEKLY_DAY_PREFIX}{DAYS[day.weekday()].capitalize()} {day.day}</b>"]
+                lines += [f"{when}  {_escape(title)}" for when, title in events]
+                sections.append("\n".join(lines))
+            if failed:
+                sections.append(f"⚠️ {failed} agenda(s) indisponible(s).")
+        except Exception as exc:
+            print(f"[warn] weekly calendar failed: {type(exc).__name__}", file=sys.stderr)
+            sections.append("⚠️ <b>Agenda</b> indisponible.")
+            unknown = True
+
+    try:
+        due = sorted(
+            (date.fromisoformat(item["date"]), item["title"])
+            for item in _load_deadlines()
+            if start <= date.fromisoformat(item["date"]) <= end
+        )
+        if due:
+            n_deadlines = len(due)
+            sections.append("\n".join(
+                [WEEKLY_DEADLINES_HEADER]
+                + [f"• {format_short_date(d)} : {_escape(t)}" for d, t in due]
+            ))
+    except Exception as exc:
+        print(f"[warn] weekly deadlines failed: {type(exc).__name__}", file=sys.stderr)
+        sections.append("⚠️ <b>Échéances</b> indisponibles.")
+        unknown = True
+
+    if n_events or n_deadlines or unknown:  # never claim a free week on errors
+        sections.append(
+            f"{_plural(n_events, 'événement')}, {_plural(n_deadlines, 'échéance')}."
+        )
+    else:
+        sections.append("Semaine libre. 🎉")
+    return sections
+
+
 def _escape(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
@@ -490,16 +573,19 @@ def build_sections(evening: bool = False) -> list[str]:
 
 
 def _redact(section: str) -> str:
-    """Replace a private section with its header only (for public CI logs):
-    self-talk, challenge, night note, calendar events and deadlines."""
-    private_headers = (
-        SELF_TALK_HEADER, CHALLENGE_HEADER, NIGHT_NOTE_HEADER,
-        CALENDAR_HEADER, TOMORROW_CALENDAR_HEADER,
-        DEADLINES_HEADER_PREFIX, TOMORROW_DEADLINES_HEADER,
-    )
-    for header in private_headers:
-        if section.startswith(header):
-            return f"{header} [hidden in CI logs]"
+    """Hide private content for public CI logs: self-talk, challenge, night
+    note, calendar events and deadlines. Only headers are kept."""
+    # Private text on the header line itself: keep the prefix only.
+    for prefix in (CHALLENGE_HEADER, NIGHT_NOTE_HEADER):
+        if section.startswith(prefix):
+            return f"{prefix} [hidden in CI logs]"
+    # Header line is not private (title or date): keep it, hide the rest.
+    for prefix in (
+        SELF_TALK_HEADER, WEEKLY_DAY_PREFIX,  # all 📆 calendar sections
+        DEADLINES_HEADER_PREFIX, TOMORROW_DEADLINES_HEADER, WEEKLY_DEADLINES_HEADER,
+    ):
+        if section.startswith(prefix):
+            return f"{section.splitlines()[0]}\n[hidden in CI logs]"
     return section
 
 
@@ -548,16 +634,26 @@ def main() -> None:
     parser.add_argument(
         "--dry-run", action="store_true", help="print the message instead of sending it"
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--evening", action="store_true", help="build the evening message instead"
+    )
+    mode.add_argument(
+        "--weekly", action="store_true", help="build the weekly summary instead"
     )
     args = parser.parse_args()
 
     if args.evening and not config.ENABLE_EVENING:
         print("Evening message disabled (ENABLE_EVENING=false).")
         return
+    if args.weekly and not config.ENABLE_WEEKLY:
+        print("Weekly summary disabled (ENABLE_WEEKLY=false).")
+        return
 
-    sections = build_sections(evening=args.evening)
+    if args.weekly:
+        sections = build_weekly_sections()
+    else:
+        sections = build_sections(evening=args.evening)
     if args.dry_run or config.DRY_RUN:
         if config.IN_CI:
             # Actions logs are public: never print private sections.
@@ -570,7 +666,8 @@ def main() -> None:
         return
     for message in split_messages(sections):
         send(message)
-    print("Evening message sent." if args.evening else "Brief sent.")
+    print("Weekly summary sent." if args.weekly
+          else "Evening message sent." if args.evening else "Brief sent.")
 
 
 if __name__ == "__main__":

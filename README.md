@@ -2,7 +2,7 @@
 
 A small Python script, run by GitHub Actions, that sends a daily Telegram
 message in the morning (weather, agenda, deadlines, verse and word of the day)
-and a short one in the evening.
+and a short one in the evening, plus a weekly summary on Sundays.
 
 ## Setup
 
@@ -18,6 +18,7 @@ pip install -r requirements.txt
 cp .env.example .env
 python main.py --dry-run
 python main.py --evening --dry-run
+python main.py --weekly --dry-run
 ```
 
 ## License

@@ -10,12 +10,14 @@ on:
     - cron: "0 7 * * *"   # morning (07:00 local at UTC+0)
     - cron: "0 20 * * *"  # evening (21:00 local at UTC+1)
     - cron: "0 21 * * *"  # evening (21:00 local at UTC+0)
+    - cron: "0 19 * * 0"  # weekly, Sunday (20:00 local at UTC+1)
+    - cron: "0 20 * * 0"  # weekly, Sunday (20:00 local at UTC+0)
   workflow_dispatch:
     inputs:
       mode:
         description: "Which message to send"
         type: choice
-        options: [morning, evening]
+        options: [morning, evening, weekly]
         default: morning
       simulate_failure:
         description: "Fail on purpose to test the failure alert (nothing is sent)"
@@ -52,6 +54,7 @@ jobs:
           TIMEZONE: ${{ secrets.TIMEZONE || vars.TIMEZONE }}
           MORNING_HOUR: ${{ vars.MORNING_HOUR }}
           EVENING_HOUR: ${{ vars.EVENING_HOUR }}
+          WEEKLY_HOUR: ${{ vars.WEEKLY_HOUR }}
         run: |
           python -m pip install --quiet --disable-pip-version-check "tzdata>=2026.6"
           python schedule_check.py
@@ -88,7 +91,8 @@ jobs:
           ENABLE_EVENING: ${{ secrets.ENABLE_EVENING || vars.ENABLE_EVENING }}
           ENABLE_EVENING_VERSE: ${{ secrets.ENABLE_EVENING_VERSE || vars.ENABLE_EVENING_VERSE }}
           ENABLE_NIGHT_NOTE: ${{ secrets.ENABLE_NIGHT_NOTE || vars.ENABLE_NIGHT_NOTE }}
-        run: python main.py ${{ steps.gate.outputs.mode == 'evening' && '--evening' || '' }}
+          ENABLE_WEEKLY: ${{ secrets.ENABLE_WEEKLY || vars.ENABLE_WEEKLY }}
+        run: python main.py ${{ steps.gate.outputs.mode == 'evening' && '--evening' || steps.gate.outputs.mode == 'weekly' && '--weekly' || '' }}
 
   # Sends a short fixed alert if the brief job fails. No secret or private
   # content is included, and the Telegram API response is discarded.
@@ -102,7 +106,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          LABEL: ${{ needs.brief.outputs.mode == 'evening' && 'Message du soir' || 'Morning brief' }}
+          LABEL: ${{ needs.brief.outputs.mode == 'evening' && 'Message du soir' || needs.brief.outputs.mode == 'weekly' && 'Résumé de la semaine' || 'Morning brief' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
