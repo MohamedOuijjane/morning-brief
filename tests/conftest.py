@@ -35,7 +35,7 @@ def isolated(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
         "TELEGRAM_CHAT_ID": "",
         "DEADLINES_DAYS": 14,
         "DEADLINES_JSON": "",
-        "DEADLINES_FILE": str(FIXTURES / "deadlines.json"),
+        "DEADLINES_FILE": str(FIXTURES / "sample_deadlines.json"),
         "SELF_TALK_JSON": "",
         "SELF_TALK_FILE": "self_talk.example.json",
         "NIGHT_NOTES_JSON": "",

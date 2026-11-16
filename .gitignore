@@ -25,3 +25,7 @@ night_notes.json
 
 # Private word list (never commit)
 words.json
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
