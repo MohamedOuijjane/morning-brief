@@ -12,7 +12,7 @@ installed. Writes `send` and `mode` to $GITHUB_OUTPUT when available.
 """
 
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 
@@ -62,7 +62,7 @@ def main() -> None:
         tz_name=_env("TIMEZONE", "Europe/Paris"),
         morning_hour=int(_env("MORNING_HOUR", "7")),
         evening_hour=int(_env("EVENING_HOUR", "21")),
-        now=datetime.now(timezone.utc),
+        now=datetime.now(UTC),
         weekly_hour=int(_env("WEEKLY_HOUR", "20")),
     )
     print(f"Sending the {mode} message." if send

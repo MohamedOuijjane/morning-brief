@@ -1,10 +1,17 @@
-"""Settings loaded from environment variables."""
+"""Settings loaded from environment variables.
+
+Every module reads settings as ``config.NAME`` at call time, so tests can
+override them with ``monkeypatch.setattr(config, "NAME", value)``.
+"""
 
 import os
 from pathlib import Path
 
+# Repository root: data files (*.example.json, words.json, ...) live here.
+ROOT = Path(__file__).resolve().parent.parent
 
-def _load_dotenv(path: Path = Path(__file__).parent / ".env") -> None:
+
+def _load_dotenv(path: Path = ROOT / ".env") -> None:
     """Minimal .env loader for local runs. Existing env vars take priority."""
     if not path.exists():
         return
@@ -16,7 +23,8 @@ def _load_dotenv(path: Path = Path(__file__).parent / ".env") -> None:
         os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
-_load_dotenv()
+if os.environ.get("BRIEF_NO_DOTENV") != "1":  # set by the test suite
+    _load_dotenv()
 
 
 def _get(name: str, default: str = "") -> str:
@@ -38,6 +46,7 @@ DEADLINES_JSON = _get("DEADLINES_JSON")
 DEADLINES_FILE = _get("DEADLINES_FILE", "deadlines.json")
 DEADLINES_FALLBACK_FILE = "deadlines.example.json"
 
+
 def _flag(name: str, default: str) -> bool:
     return _get(name, default).lower() in ("1", "true", "yes", "on")
 
@@ -47,7 +56,11 @@ DRY_RUN = _flag("DRY_RUN", "false")
 # Optional sections
 ENABLE_QURAN = _flag("ENABLE_QURAN", "true")
 ENABLE_WORD = _flag("ENABLE_WORD", "true")
+# The word list is private: raw JSON from a secret, else the local
+# (git-ignored) file, else the committed example.
+WORDS_JSON = _get("WORDS_JSON")
 WORDS_FILE = _get("WORDS_FILE", "words.json")
+WORDS_FALLBACK_FILE = "words.example.json"
 
 # Self-talk messages are private: raw JSON from a secret, else the local
 # (git-ignored) file, else the committed placeholder example.
