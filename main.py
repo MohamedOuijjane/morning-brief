@@ -1,5 +1,9 @@
-"""Morning brief: verse, self-talk, weather, agenda, deadlines and word of the
-day, sent to Telegram.
+"""Morning brief and evening message, sent to Telegram.
+
+    python main.py             # morning: verse, self-talk, weather, agenda,
+                               # deadlines, word of the day
+    python main.py --evening   # evening: challenge reminder, verse, tomorrow's
+                               # agenda and deadlines, bedtime note
 
 The message itself is in French; dates are formatted with hardcoded name
 lists so the output does not depend on the system locale.
@@ -85,6 +89,11 @@ SOURCE_LABELS = {
     "get_calendar": "Agenda du jour",
     "get_deadlines": "Échéances",
     "get_word": "Mot du jour",
+    "get_challenge_reminder": "تحدّي اليوم",
+    "get_evening_verse": "آية المساء",
+    "get_tomorrow_calendar": "Agenda de demain",
+    "get_tomorrow_deadlines": "À rendre demain",
+    "get_night_note": "قبل النوم",
 }
 
 
@@ -136,11 +145,22 @@ def _http_get(url: str, params: dict | None = None, label: str = "request"):
     return resp
 
 
-def _fetch_ayah(number: int) -> tuple[dict, dict]:
-    """Return (arabic, tafsir) edition entries for a global ayah number."""
-    data = _get_json(QURAN_API.format(number=number), label="get_verse")["data"]
+def _fetch_ayah(ref, label: str = "get_verse") -> tuple[dict, dict]:
+    """Return (arabic, tafsir) edition entries for a global ayah number
+    (e.g. 262) or a "surah:ayah" reference (e.g. "2:255")."""
+    data = _get_json(QURAN_API.format(number=ref), label=label)["data"]
     by_edition = {entry["edition"]["identifier"]: entry for entry in data}
     return by_edition["quran-uthmani"], by_edition["ar.muyassar"]
+
+
+def _render_ayah(header: str, ayah: dict, tafsir: dict) -> str:
+    # Text and tafsir are shown exactly as returned by the API.
+    return "\n".join([
+        header,
+        f"﴿ {_escape(ayah['text'])} ﴾",
+        f"{_escape(ayah['surah']['name'])} — الآية {ayah['numberInSurah']}",
+        f"<b>التفسير:</b> {_escape(tafsir['text'])}",
+    ])
 
 
 def get_verse() -> str:
@@ -153,14 +173,16 @@ def get_verse() -> str:
         number = number % QURAN_TOTAL_AYAHS + 1
     else:
         raise RuntimeError("no short enough ayah found")
+    return _render_ayah("📖 <b>آية اليوم</b>", ayah, tafsir)
 
-    # Text is shown exactly as returned by the API.
-    return "\n".join([
-        "📖 <b>آية اليوم</b>",
-        f"﴿ {_escape(ayah['text'])} ﴾",
-        f"{_escape(ayah['surah']['name'])} — الآية {ayah['numberInSurah']}",
-        f"<b>التفسير:</b> {_escape(tafsir['text'])}",
-    ])
+
+def get_evening_verse() -> str:
+    # Fixed list of references, picked by date (same verse all evening).
+    path = BASE_DIR / config.EVENING_VERSES_FILE
+    refs = json.loads(path.read_text(encoding="utf-8"))
+    ref = refs[today().toordinal() % len(refs)]
+    ayah, tafsir = _fetch_ayah(ref, label="get_evening_verse")
+    return _render_ayah("📖 <b>آية المساء</b>", ayah, tafsir)
 
 
 SELF_TALK_HEADER = "💬 <b>كلمة لنفسك اليوم</b>"
@@ -178,15 +200,50 @@ def _load_self_talk() -> list:
     raise FileNotFoundError("no self-talk messages found")
 
 
+def _todays_self_talk() -> dict:
+    # Same date-based pick for the morning message and the evening reminder.
+    messages = _load_self_talk()
+    return messages[today().toordinal() % len(messages)]
+
+
+CHALLENGE_HEADER = "🎯 <b>تحدّي اليوم:</b>"
+
+
+def get_challenge_reminder() -> str:
+    # Private content: never print or log it (see main()).
+    msg = _todays_self_talk()
+    return f"{CHALLENGE_HEADER} {_escape(msg['challenge'])}\nهل فعلته؟"
+
+
+NIGHT_NOTE_HEADER = "🌃 <b>قبل النوم:</b>"
+
+
+def _load_night_notes() -> list:
+    if config.NIGHT_NOTES_JSON:
+        return json.loads(config.NIGHT_NOTES_JSON)
+    for name in (config.NIGHT_NOTES_FILE, config.NIGHT_NOTES_FALLBACK_FILE):
+        path = Path(name)
+        if not path.is_absolute():
+            path = BASE_DIR / path
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    raise FileNotFoundError("no night notes found")
+
+
+def get_night_note() -> str:
+    # Private content: never print or log it (see main()).
+    notes = _load_night_notes()
+    return f"{NIGHT_NOTE_HEADER} {_escape(notes[today().toordinal() % len(notes)])}"
+
+
 def get_self_talk() -> str:
     # Private content: never print or log it (see main()).
-    messages = _load_self_talk()
-    msg = messages[today().toordinal() % len(messages)]
+    msg = _todays_self_talk()
     return "\n".join([
         SELF_TALK_HEADER,
         f"« {_escape(msg['title'])} »",
         _escape(msg["body"]),
-        f"🎯 <b>تحدّي اليوم:</b> {_escape(msg['challenge'])}",
+        f"{CHALLENGE_HEADER} {_escape(msg['challenge'])}",
     ])
 
 
@@ -278,12 +335,24 @@ def _calendar_events(url: str, label: str, day: date, tz: ZoneInfo) -> list:
 
 
 def get_calendar() -> str | None:
+    return _agenda(today(), CALENDAR_HEADER, "Aucun événement aujourd'hui.")
+
+
+TOMORROW_CALENDAR_HEADER = "📆 <b>Demain</b>"
+
+
+def get_tomorrow_calendar() -> str | None:
+    return _agenda(
+        today() + timedelta(days=1), TOMORROW_CALENDAR_HEADER, "Aucun événement demain."
+    )
+
+
+def _agenda(day: date, header: str, empty_text: str) -> str | None:
     urls = _calendar_urls()
     if not urls:
         return None  # not configured: skip the section silently
 
     tz = ZoneInfo(config.TIMEZONE)
-    day = today()
     events, seen, failed = [], set(), 0
     for n, url in enumerate(urls, 1):
         label = f"calendar {n}"
@@ -302,9 +371,9 @@ def get_calendar() -> str | None:
         raise RuntimeError("all calendars failed")
 
     events.sort()
-    lines = [CALENDAR_HEADER]
+    lines = [header]
     if not events:
-        lines.append("Aucun événement aujourd'hui.")
+        lines.append(empty_text)
     for _, _, when, title in events:
         lines.append(f"{when}  {_escape(title)}")
     if failed:
@@ -324,6 +393,9 @@ def _load_deadlines() -> list:
     return []
 
 
+DEADLINES_HEADER_PREFIX = "📅 <b>Échéances"
+
+
 def get_deadlines() -> str:
     start = today()
     upcoming = []
@@ -334,7 +406,7 @@ def get_deadlines() -> str:
             upcoming.append((days_left, due, item["title"]))
     upcoming.sort()
 
-    header = f"📅 <b>Échéances ({config.DEADLINES_DAYS} prochains jours)</b>"
+    header = f"{DEADLINES_HEADER_PREFIX} ({config.DEADLINES_DAYS} prochains jours)</b>"
     if not upcoming:
         return f"{header}\nRien à signaler. 🎉"
 
@@ -349,6 +421,20 @@ def get_deadlines() -> str:
         marker = "🔴" if days_left <= 2 else "🟡" if days_left <= 7 else "🟢"
         lines.append(f"{marker} {_escape(title)} : {format_short_date(due)} ({when})")
     return "\n".join(lines)
+
+
+TOMORROW_DEADLINES_HEADER = "⏰ <b>À rendre demain</b>"
+
+
+def get_tomorrow_deadlines() -> str | None:
+    tomorrow = today() + timedelta(days=1)
+    titles = sorted(
+        item["title"] for item in _load_deadlines()
+        if date.fromisoformat(item["date"]) == tomorrow
+    )
+    if not titles:
+        return None  # nothing due tomorrow: omit the section
+    return "\n".join([TOMORROW_DEADLINES_HEADER] + [f"• {_escape(t)}" for t in titles])
 
 
 def _escape(text: str) -> str:
@@ -367,9 +453,27 @@ def enabled_sources() -> list:
     return sources
 
 
-def build_sections() -> list[str]:
-    sections = [f"🌅 <b>Bonjour !</b> {format_long_date(today())}"]
-    for source in enabled_sources():
+def evening_sources() -> list:
+    sources = []
+    if config.ENABLE_SELF_TALK:
+        sources.append(get_challenge_reminder)
+    if config.ENABLE_EVENING_VERSE:
+        sources.append(get_evening_verse)
+    sources += [get_tomorrow_calendar, get_tomorrow_deadlines]
+    if config.ENABLE_NIGHT_NOTE:
+        sources.append(get_night_note)  # always the last line
+    return sources
+
+
+def build_sections(evening: bool = False) -> list[str]:
+    if evening:
+        greeting = f"🌙 <b>Bonsoir</b> {format_long_date(today())}"
+        sources = evening_sources()
+    else:
+        greeting = f"🌅 <b>Bonjour !</b> {format_long_date(today())}"
+        sources = enabled_sources()
+    sections = [greeting]
+    for source in sources:
         try:
             section = source()
             if section is not None:  # None = section not configured
@@ -383,6 +487,20 @@ def build_sections() -> list[str]:
             label = SOURCE_LABELS.get(source.__name__, source.__name__)
             sections.append(f"⚠️ <b>{label}</b> indisponible aujourd'hui.")
     return sections
+
+
+def _redact(section: str) -> str:
+    """Replace a private section with its header only (for public CI logs):
+    self-talk, challenge, night note, calendar events and deadlines."""
+    private_headers = (
+        SELF_TALK_HEADER, CHALLENGE_HEADER, NIGHT_NOTE_HEADER,
+        CALENDAR_HEADER, TOMORROW_CALENDAR_HEADER,
+        DEADLINES_HEADER_PREFIX, TOMORROW_DEADLINES_HEADER,
+    )
+    for header in private_headers:
+        if section.startswith(header):
+            return f"{header} [hidden in CI logs]"
+    return section
 
 
 def split_messages(sections: list[str], limit: int = TELEGRAM_LIMIT) -> list[str]:
@@ -430,19 +548,20 @@ def main() -> None:
     parser.add_argument(
         "--dry-run", action="store_true", help="print the message instead of sending it"
     )
+    parser.add_argument(
+        "--evening", action="store_true", help="build the evening message instead"
+    )
     args = parser.parse_args()
 
-    sections = build_sections()
+    if args.evening and not config.ENABLE_EVENING:
+        print("Evening message disabled (ENABLE_EVENING=false).")
+        return
+
+    sections = build_sections(evening=args.evening)
     if args.dry_run or config.DRY_RUN:
         if config.IN_CI:
-            # Actions logs are public: never print private sections
-            # (self-talk text, calendar event titles).
-            private = (SELF_TALK_HEADER, CALENDAR_HEADER)
-            sections = [
-                f"{s.splitlines()[0]}\n[hidden in CI logs]"
-                if s.startswith(private) else s
-                for s in sections
-            ]
+            # Actions logs are public: never print private sections.
+            sections = [_redact(s) for s in sections]
         messages = split_messages(sections)
         for i, message in enumerate(messages, 1):
             if len(messages) > 1:
@@ -451,7 +570,7 @@ def main() -> None:
         return
     for message in split_messages(sections):
         send(message)
-    print("Brief sent.")
+    print("Evening message sent." if args.evening else "Brief sent.")
 
 
 if __name__ == "__main__":

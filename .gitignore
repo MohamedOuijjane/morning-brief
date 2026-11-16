@@ -19,3 +19,6 @@ self_talk.json
 
 # Secret calendar URLs (never commit)
 gcal_urls.txt
+
+# Private bedtime notes (never commit)
+night_notes.json

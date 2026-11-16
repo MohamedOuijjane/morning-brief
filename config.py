@@ -56,6 +56,18 @@ SELF_TALK_JSON = _get("SELF_TALK_JSON")
 SELF_TALK_FILE = _get("SELF_TALK_FILE", "self_talk.json")
 SELF_TALK_FALLBACK_FILE = "self_talk.example.json"
 
+# Evening message (python main.py --evening)
+ENABLE_EVENING = _flag("ENABLE_EVENING", "true")
+ENABLE_EVENING_VERSE = _flag("ENABLE_EVENING_VERSE", "true")
+EVENING_VERSES_FILE = "evening_verses.json"
+
+# Bedtime notes are private, like self-talk: secret, else local file, else
+# the committed placeholder example.
+ENABLE_NIGHT_NOTE = _flag("ENABLE_NIGHT_NOTE", "true")
+NIGHT_NOTES_JSON = _get("NIGHT_NOTES_JSON")
+NIGHT_NOTES_FILE = _get("NIGHT_NOTES_FILE", "night_notes.json")
+NIGHT_NOTES_FALLBACK_FILE = "night_notes.example.json"
+
 # Secret iCal URLs: GCAL_ICS_URLS holds one per line (blank lines and lines
 # starting with # are ignored); GCAL_ICS_URL is accepted as one more URL.
 # If neither is set, the agenda section is skipped.

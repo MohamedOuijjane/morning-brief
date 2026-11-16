@@ -1,3 +1,4 @@
 requests>=2.31,<3
 icalendar>=6,<8
 recurring-ical-events>=3,<4
+tzdata>=2026.6  # up-to-date timezone rules, independent of the runner OS

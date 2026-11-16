@@ -1,7 +1,10 @@
 # morning-brief
 
-A small Python script that runs every morning on GitHub Actions and sends one
-Telegram message with:
+A small Python script that runs on GitHub Actions and sends two Telegram
+messages a day: a morning brief at 07:00 and an evening message at 21:00
+(local time in `TIMEZONE`).
+
+The **morning brief** (`python main.py`) contains:
 
 1. **Verse of the day**: one ayah in Arabic with its Tafsir Al-Muyassar, from
    [alquran.cloud](https://alquran.cloud/api) (free, no API key)
@@ -12,6 +15,15 @@ Telegram message with:
    iCal feed), recurring events included
 5. **Upcoming deadlines** due in the next 14 days, read from a JSON file
 6. **Word of the day** in Arabic, French and English, with an example sentence
+
+The **evening message** (`python main.py --evening`) contains:
+
+1. **Challenge reminder**: this morning's self-talk challenge, "هل فعلته؟"
+2. **Evening verse**: an ayah picked by date from a fixed list
+   (`evening_verses.json`), with its Tafsir Al-Muyassar
+3. **Demain**: tomorrow's calendar events
+4. **À rendre demain**: deadlines due tomorrow (omitted when there are none)
+5. **Bedtime note** (قبل النوم) from your own private list, as the last line
 
 Each source is fetched on its own, so if the weather API is down you still
 get the rest of the message. API requests are retried up to 3 times with a
@@ -58,11 +70,35 @@ Toute la journée  Journée portes ouvertes
 🇬🇧 week — The exam is next week.
 ```
 
+```
+🌙 Bonsoir lundi 16 novembre 2026
+
+🎯 تحدّي اليوم: اكتب شيئًا واحدًا أحسنت فيه بالأمس.
+هل فعلته؟
+
+📖 آية المساء
+﴿ وَلَا تَهِنُوا۟ وَلَا تَحْزَنُوا۟ وَأَنتُمُ ٱلْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ ﴾
+سُورَةُ آلِ عِمۡرَانَ — الآية 139
+التفسير: ولا تضْعُفوا -أيها المؤمنون- عن قتال عدوكم، ولا تحزنوا لما أصابكم في "أُحد"، وأنتم الغالبون والعاقبة لكم، إن كنتم مصدقين بالله ورسوله متَّبعين شرعه.
+
+📆 Demain
+Toute la journée  Salon de l'étudiant
+10:00  Réunion projet
+
+⏰ À rendre demain
+• Submit sample project report
+
+🌃 قبل النوم: تذكّر شيئًا جميلًا حدث اليوم مهما كان صغيرًا.
+```
+
 ## Project layout
 
 | File | Purpose |
 | --- | --- |
-| `main.py` | `get_verse()`, `get_weather()`, `get_deadlines()`, `get_word()`, `send()` |
+| `main.py` | One `get_*()` function per section, `send()`; `--evening` for the evening message |
+| `schedule_check.py` | Decides which scheduled run sends (local hour check) |
+| `evening_verses.json` | Fixed list of evening verse references (surah:ayah) |
+| `night_notes.example.json` | 3 placeholder bedtime notes |
 | `self_talk.example.json` | 3 placeholder self-talk messages |
 | `words.json` | 150 words in Arabic, French and English with example sentences |
 | `config.py` | Reads all settings from environment variables |
@@ -109,6 +145,7 @@ New repository secret** and add:
 | `TELEGRAM_CHAT_ID` | yes | Your chat ID |
 | `DEADLINES_JSON` | no | Full content of your deadlines file (see below) |
 | `SELF_TALK_JSON` | no | Full content of your private self-talk file (see below) |
+| `NIGHT_NOTES_JSON` | no | Full content of your private bedtime notes file (see below) |
 | `GCAL_ICS_URLS` | no | Secret iCal URLs, one per line (see below) |
 | `GCAL_ICS_URL` | no | One more secret iCal URL |
 | `LATITUDE`, `LONGITUDE`, `CITY_NAME`, `TIMEZONE` | no | Your location |
@@ -123,9 +160,33 @@ If `DEADLINES_JSON` is not set, the workflow falls back to
 
 ### 5. Test it
 
-Go to **Actions → Morning brief → Run workflow**. You should receive the
-message within a minute. After that it runs automatically every day at
-06:00 UTC (edit the `cron` line in `.github/workflows/morning.yml` to change it).
+Go to **Actions → Morning brief → Run workflow**, choose `morning` or
+`evening`, and run it. Manual runs always send. You should receive the message
+within a minute.
+
+```bash
+gh workflow run morning.yml                 # morning brief
+gh workflow run morning.yml -f mode=evening # evening message
+```
+
+## Schedule
+
+GitHub cron schedules are in UTC only, and many timezones change their clocks.
+Each message is therefore scheduled at the **two** UTC hours that can match the
+local target hour, and `schedule_check.py` keeps only the run whose scheduled
+time is 07:00 (morning) or 21:00 (evening) in `TIMEZONE`. The other run exits
+right away without installing anything or sending a message. The check uses
+the scheduled time, not the actual start time, so a run that GitHub starts late
+still counts as its slot.
+
+The cron hours in `.github/workflows/morning.yml` (06:00 and 07:00 UTC for the
+morning, 20:00 and 21:00 UTC for the evening) suit a timezone that switches
+between UTC+0 and UTC+1. For another timezone, replace them with the two UTC
+hours that correspond to 07:00 and 21:00 local time. Target hours can be
+changed with the `MORNING_HOUR` and `EVENING_HOUR` repository variables.
+
+Timezone rules come from the pinned `tzdata` Python package rather than the
+runner's system files, so recent clock-change decisions are taken into account.
 
 ## Reliability
 
@@ -133,7 +194,8 @@ message within a minute. After that it runs automatically every day at
   repository activity. A `keepalive` job re-enables the workflow through the
   API on every run, which resets that timer without any commit.
 - **Failure alert**: if the brief job fails, an `alert-on-failure` job sends a
-  short Telegram message, "⚠️ Morning brief a échoué", with a link to the run.
+  short Telegram message, "⚠️ Morning brief a échoué" (or "⚠️ Message du soir
+  a échoué"), with a link to the run.
   It contains no secret or private content. A section that fails on its own
   (for example the weather API) does not fail the job: it shows a short
   "indisponible" line in the brief instead.
@@ -214,6 +276,24 @@ All three optional sections can be turned off with `ENABLE_QURAN=false`,
 `ENABLE_SELF_TALK=false` or `ENABLE_WORD=false`
 (as a secret or variable in GitHub, or in `.env` locally).
 
+## Evening verse and bedtime notes
+
+- **Evening verse**: one reference from `evening_verses.json`, picked by date,
+  fetched from alquran.cloud (Uthmani text and Tafsir Al-Muyassar) and shown
+  exactly as returned. Edit the list freely; each entry is `"surah:ayah"`.
+- **Bedtime notes**: private, like self-talk. The script looks for them in
+  the `NIGHT_NOTES_JSON` environment variable, then a local `night_notes.json`
+  (ignored by git), then `night_notes.example.json`. The format is a JSON list
+  of strings; one is picked per day. To use your own list in Actions:
+
+  ```bash
+  gh secret set NIGHT_NOTES_JSON < night_notes.json
+  ```
+
+The evening message can be turned off with `ENABLE_EVENING=false`, and its
+sections with `ENABLE_EVENING_VERSE=false` or `ENABLE_NIGHT_NOTE=false`. The
+challenge reminder follows `ENABLE_SELF_TALK`.
+
 ## Running locally
 
 ```bash
@@ -224,7 +304,8 @@ pip install -r requirements.txt
 cp .env.example .env                       # then fill in your values
 cp deadlines.example.json deadlines.json   # then add your real deadlines
 
-python main.py --dry-run   # print the message instead of sending it
+python main.py --dry-run             # print the morning brief instead of sending it
+python main.py --evening --dry-run   # same for the evening message
 
 # with your calendars (multi-line values do not fit in .env)
 GCAL_ICS_URLS="$(cat gcal_urls.txt)" python main.py --dry-run
@@ -251,6 +332,12 @@ python main.py             # send it to Telegram
 | `GCAL_ICS_URL` | – | One more secret iCal URL |
 | `SELF_TALK_JSON` | – | Self-talk messages as raw JSON (takes priority) |
 | `SELF_TALK_FILE` | `self_talk.json` | Self-talk file, falls back to the example |
+| `ENABLE_EVENING` | `true` | Send the evening message |
+| `ENABLE_EVENING_VERSE` | `true` | Show the evening verse |
+| `ENABLE_NIGHT_NOTE` | `true` | Show the bedtime note |
+| `NIGHT_NOTES_JSON` | – | Bedtime notes as raw JSON (takes priority) |
+| `NIGHT_NOTES_FILE` | `night_notes.json` | Bedtime notes file, falls back to the example |
+| `MORNING_HOUR` / `EVENING_HOUR` | `7` / `21` | Local send hours (repository variables, used by the schedule check) |
 | `DRY_RUN` | `false` | Print instead of sending |
 
 ## License
